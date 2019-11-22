@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html>
+ <head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Sphere triangulations</title>
+  <style type="text/css" media="screen">
+   @import url(algtop_demo.css);
+  </style>
+  <script src="https://preview.babylonjs.com/babylon.js"></script>
+  <script src="algtop.js"></script>
+  <script src="json/ico_oct_data.js"></script>
+  <style>
+   html, body {
+       overflow: hidden;
+       width: 100%;
+       height: 100%;
+       margin: 0;
+       padding: 0;
+   }
+   
+   canvas {
+       width: 100%;
+       height: 600px;
+       touch-action: none;
+   }
+  </style>
+ </head>
+ <body>
+  <div id="control_div" style="position:absolute; left:50px; top:50px;">
+   <div class="control" style="width: 150px;" id="index" onclick="location='index.php'">Index</div>
+  </div>
+  <div style="text-align:center">
+   <canvas id="sphere_canvas"></canvas>
+   <div id="slidecontainer" style="width: 800px; margin: 0 auto;">
+    <input type="range" min="-200" max="200" value="0" class="slider" id="stage_slider">
+   </div>
+   <br/>
+   <div id="text" style="width: 800px; margin: 0 auto; text-align:left">
+    This shows that the sphere can be divided into spherical triangles
+    in an octahedral pattern (slide to the left) or an icosahedral
+    pattern (slide to the right).  The triangles can then be flattened
+    out to make an actual regular polyhedron.  We will need a
+    framework of definitions to capture these phenomena, and we will
+    need to prove that the answers to certain question do not change
+    depending on which pattern we use.
+   </div>
+  </div>
+ <script>
+
+  var demo = {};
+
+  demo.init = function() {
+   var tt,t,k,col,mat,v,i,p,cols,me;
+   
+   this.slider = document.getElementById("stage_slider");
+   this.canvas = document.getElementById("sphere_canvas");
+   this.engine =
+     new BABYLON.Engine(this.canvas, true, { preserveDrawingBuffer: true, stencil: true });
+   this.scene = algtop.basic_scene(this.engine,this.canvas);
+   this.scene.camera.setPosition(new BABYLON.Vector3(2,3,4));
+   this.mesh = new BABYLON.Mesh("ico_oct", this.scene);
+   this.grid = new BABYLON.VertexData();
+
+   this.grid.positions = algtop.flat(object_data.sphere_embedding);
+   this.grid.normals   = algtop.flat(object_data.sphere_embedding);
+   this.grid.indices   = algtop.flat(object_data.faces);
+   this.grid.applyToMesh(this.mesh,true);
+   algtop.set_colour(this.mesh,0.3,0.3,0.6);
+
+   tt = ['octahedron','icosahedron'];
+
+   for (t in tt) {
+    k = tt[t];
+
+    this[k + '_alpha'] = 0;
+    
+    if (k == 'octahedron') {
+     col = new BABYLON.Color4(1,0,0,0);
+    } else {
+     col = new BABYLON.Color4(0,1,0,0);     
+    }
+    this[k + '_col'] = col;
+    
+    this[k + '_path'] = [];
+    v = object_data.sphere_embedding;
+   
+    for (i in object_data[k + '_paths']) {
+     p = {};
+     p.indices = object_data[k + '_paths'][i];
+     p.positions = [];
+     for (j in p.indices) {
+      p.positions.push(algtop.bab.vect(v[p.indices[j]]));
+     }
+
+     cols = Array(p.positions.length).fill(col);
+     p.mesh = BABYLON.MeshBuilder.CreateLines("oct_path_" + i,
+      {points : p.positions, colors : cols, alpha : 0, updatable : true}, this.scene);
+
+     this[k + '_path'].push(p);
+    }
+   }
+
+   me = this;
+   
+   this.engine.runRenderLoop(function () {
+    if (me.scene) {
+     me.scene.render();
+    }
+   });
+
+   window.addEventListener("resize", function () {
+    me.engine.resize();
+   });
+
+   this.slider.oninput = function() {
+    me.set_stage(this.value);
+   }
+  }
+
+  demo.set_stage = function(i) {
+   var x = 0;
+   var j = parseInt(i);
+   
+   if (j >= 100) {
+    x = 0.01 * (j - 100);
+    this.set_positions(1 - x, 0, x);
+   } else if (j <= -100) {
+    x = - 0.01 * (j + 100); 
+    this.set_positions(1 - x, x, 0);
+   } else {
+    this.set_positions(1, 0, 0);
+   }
+
+   if (j <= -100) {
+    this.set_alpha(1,0);
+   } else if (j <= 0) {
+    this.set_alpha(-j * 0.01,0);
+   } else if (j <= 100) {
+    this.set_alpha(0,j * 0.01);
+   } else {
+    this.set_alpha(0,1);
+   }
+  }
+
+  demo.set_positions = function(u,v,w) {
+   var p = [];
+   var n = object_data.sphere_embedding.length;
+   var pu = object_data.sphere_embedding;
+   var pv = object_data.octahedron_embedding;
+   var pw = object_data.icosahedron_embedding;
+   
+   var i,j;
+   for (i = 0; i < n; i++) {
+    for (j = 0; j < 3; j++) {
+     p.push(u * pu[i][j] + v * pv[i][j] + w * pw[i][j]);
+    }
+   }
+
+   this.mesh.updateVerticesData(BABYLON.VertexBuffer.PositionKind, p);
+
+   tt = ['octahedron','icosahedron'];
+    
+   for (t in tt) {
+    k = tt[t];
+    
+    for (i in this[k + '_path']) {
+     p = this[k + '_path'][i];
+
+     p.positions = [];
+     for (j in p.indices) {
+      xu = pu[p.indices[j]];
+      xv = pv[p.indices[j]];
+      xw = pw[p.indices[j]];
+      x = [u * xu[0] + v * xv[0] + w * xw[0],
+	   u * xu[1] + v * xv[1] + w * xw[1],
+	   u * xu[2] + v * xv[2] + w * xw[2]];
+      p.positions.push(algtop.bab.vect(x));
+      p.mesh.path = p.positions;
+      p.mesh = BABYLON.MeshBuilder.CreateLines(null,
+        {points : p.positions, instance : p.mesh}, this.scene);
+     }
+    }
+   }
+  }
+
+  demo.set_alpha = function(ao,ai) {
+   var tt,t,k,a,i;
+   
+   tt = ['octahedron','icosahedron'];
+
+   for (t in tt) {
+    k = tt[t];
+
+    a = (k == 'octahedron') ? ao : ai;
+    col = this[k + '_col'];
+    col.a = a;
+
+    for (i in this[k + '_path']) {
+     p = this[k + '_path'][i];
+     cols = Array(p.positions.length).fill(col);
+     p.mesh = BABYLON.MeshBuilder.CreateLines(null,{points : p.positions, colors : cols, instance : p.mesh}, this.scene);
+    }
+   }   
+  }
+  
+  demo.init();
+ </script>
+</body>
+</html>

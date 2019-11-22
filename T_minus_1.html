@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html>
+ <head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>T\point</title>
+  <style type="text/css" media="screen">
+   @import url(algtop_demo.css);
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js"> 
+   MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX","output/HTML-CSS"],
+    tex2jax: {inlineMath: [["$","$"]]}
+   });
+  </script> 
+  <script src="https://preview.babylonjs.com/babylon.js"></script>
+  <script src="algtop.js"></script>
+  <style>
+   html, body {
+       overflow: hidden;
+       width: 100%;
+       height: 100%;
+       margin: 0;
+       padding: 0;
+   }
+   
+   canvas {
+       width: 600px;
+       height: 600px;
+       touch-action: none;
+   }
+  </style>
+ </head>
+ <body>
+  <div id="control_div" style="position:absolute; left:10px; top:10px;">
+   <div class="control" style="width: 150px;" id="index" onclick="location='index.php'">Index</div>
+  </div>
+  <div style="text-align:center">
+   <div>
+    <svg width="600" height="600" id="main_svg"></svg>
+    <canvas id="main_canvas"></canvas>
+   </div>
+   <div id="slidecontainer" style="width: 800px; margin: 0 auto;">
+    <input type="range" min="0" max="100" value="0" class="slider" id="stage_slider">
+   </div>
+   <br/><br/>
+   <div id="text" style="width: 800px; margin: 0 auto; text-align:left">
+    This illustrates the fact that $T\setminus\text{point}$ is
+    homotopy equivalent to the figure eight space $E=S^1\vee S^1$.
+    The torus $T$ can be formed by identifying edges of a square $Q$.
+    The right hand picture shows a homotopy
+    $h\colon [0,1]\times T\setminus\{a\}\to T\setminus\{a\}$.  The
+    left hand picture shows a compatible homotopy 
+    $k\colon [0,1]\times Q\setminus\{b\}\to Q\setminus\{b\}$.
+   </div>
+  </div>
+ <script>
+
+  var demo = {};
+
+  demo.init = function() {
+   var me = this;
+
+   this.slider = document.getElementById("stage_slider");
+   this.svg = document.getElementById("main_svg");
+   this.svg.setAttribute('viewBox','-0.4 -0.4 1.8 1.8');
+
+   this.e = 0.02;
+   this.svg.appendChild(algtop.svg.frect(0,0,1,1,'#8080FF'));
+   this.svg.appendChild(algtop.svg.line(0,0,1,0,'#FF0000',0.01));
+   this.svg.appendChild(algtop.svg.line(0,1,1,1,'#FF0000',0.01));
+   this.svg.appendChild(algtop.svg.line(0,0,0,1,'#0000FF',0.01));
+   this.svg.appendChild(algtop.svg.line(1,0,1,1,'#0000FF',0.01));
+   this.svg_gap = algtop.svg.frect(0.5-this.e,0.5-this.e,2*this.e,2*this.e,'#FFFFFF');
+   this.svg.appendChild(this.svg_gap);
+   this.svg.appendChild(algtop.svg.disc(0.0,0.0,0.5 * this.e,'#000000'));
+   this.svg.appendChild(algtop.svg.disc(0.0,1.0,0.5 * this.e,'#000000'));
+   this.svg.appendChild(algtop.svg.disc(1.0,0.0,0.5 * this.e,'#000000'));
+   this.svg.appendChild(algtop.svg.disc(1.0,1.0,0.5 * this.e,'#000000'));
+   this.svg.appendChild(algtop.svg.disc(0.5,0.5,0.5 * this.e,'#00FF00'));
+    
+   this.canvas = document.getElementById("main_canvas");
+   this.engine =
+     new BABYLON.Engine(this.canvas, true, { preserveDrawingBuffer: true, stencil: true });
+
+   this.scene = algtop.basic_scene(this.engine,this.canvas);
+
+   this.torus0 = Object.create(algtop.torus);
+   this.torus0.n = 256;   
+   this.torus0.make_mesh(this.scene);
+   var mat = new BABYLON.StandardMaterial("mat", this.scene);
+   mat.alpha = 0.4;
+   mat.backFaceCulling = false;
+   mat.diffuseColor = new BABYLON.Color3(0.5,0.5,0.5);
+   this.torus0.mesh.material = mat;
+
+   this.s = 0;
+   
+   this.blocks = [];
+   this.num_blocks = 4;
+   for (i = 0; i < this.num_blocks; i++) {
+    b = Object.create(algtop.surface);
+    this.blocks.push(b);
+   }
+
+   this.blocks[0].f = function(t,u) {
+    return [ u * (t - 0.5),  0.5 * u];    
+   }
+   
+   this.blocks[1].f = function(t,u) {
+    return [ u * (t - 0.5), -0.5 * u];    
+   }
+   
+   this.blocks[2].f = function(t,u) {
+    return [ 0.5 * u,  u * (t - 0.5)];    
+   }
+   
+   this.blocks[3].f = function(t,u) {
+    return [-0.5 * u,  u * (t - 0.5)];    
+   }
+   
+   for (i = 0; i < this.num_blocks; i++) {
+    b = this.blocks[i];
+    
+    b.embedding = function(t,u) {
+     var v = (1 - me.s) * (0.98 * u + 0.02) + me.s;
+     var z = this.f(t,v);
+     return me.torus0.embedding(z[0],z[1]);
+    }
+    
+    b.normal = function(t,u) {
+     var v = (1 - me.s) * (0.98 * u + 0.02) + me.s;
+     var z = this.f(t,v);
+     return me.torus0.normal(z[0],z[1]);
+    }
+
+    b.make_mesh(this.scene);
+   }
+
+   this.t_axis = Object.create(algtop.thin_curve);
+   this.t_axis.colour = new BABYLON.Color4(1,0,0,1);
+   this.t_axis.embedding = function(t) { return me.torus0.embedding(t+0.5,0.5); }
+   this.t_axis.make_mesh(this.scene);
+
+   this.u_axis = Object.create(algtop.thin_curve);
+   this.u_axis.colour = new BABYLON.Color4(0,0,1,1);
+   this.u_axis.embedding = function(t) { return me.torus0.embedding(0.5,t+0.5); }
+   this.u_axis.make_mesh(this.scene);
+
+   this.base = algtop.bab.point(this.torus0.embedding(0.5,0.5),[0,0,0],0.1,this.scene);
+   this.pole = algtop.bab.point(this.torus0.embedding(0.0,0.0),[0,1,0],0.1,this.scene);
+   
+   this.engine.runRenderLoop(function () {
+    if (me.scene) {
+     me.scene.render();
+    }
+   });
+
+   window.addEventListener("resize", function () {
+    me.engine.resize();
+   });
+
+   this.slider.oninput = function() {
+    me.set_stage(this.value);
+   }
+  }
+
+  demo.set_stage = function(i) {
+   var j;
+   
+   this.s = parseInt(i) * 0.01;
+
+   for (j = 0; j < this.num_blocks; j++) {
+    this.blocks[j].update_mesh();
+   }
+
+   var u = 2 * this.e + this.s * (1 - 2 * this.e);
+   this.svg_gap.setAttribute('x',0.5 * (1 - u));
+   this.svg_gap.setAttribute('y',0.5 * (1 - u));
+   this.svg_gap.setAttribute('width',u);
+   this.svg_gap.setAttribute('height',u);
+  }
+  
+  demo.init();
+ </script>
+</body>
+</html>

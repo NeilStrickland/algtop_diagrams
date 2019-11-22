@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html>
+ <head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>The exponential covering</title>
+  <style type="text/css" media="screen">
+   @import url(algtop_demo.css);
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js"> 
+   MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX","output/HTML-CSS"],
+    tex2jax: {inlineMath: [["$","$"]]}
+   });
+  </script> 
+  <script src="https://preview.babylonjs.com/babylon.js"></script>
+  <script src="algtop.js"></script>
+  <style>
+   html, body {
+       overflow: hidden;
+       width: 100%;
+       height: 100%;
+       margin: 0;
+       padding: 0;
+   }
+   
+   canvas {
+       width: 600px;
+       height: 600px;
+       touch-action: none;
+   }
+  </style>
+ </head>
+ <body>
+  <div id="control_div" style="position:absolute; left:50px; top:50px;">
+   <div class="control" style="width: 150px;" id="index" onclick="location='index.php'">Index</div>
+  </div>
+  <div style="text-align:center">
+   <div>
+    <svg width="600" height="600" id="main_svg"></svg>
+    <canvas id="main_canvas"></canvas>
+   </div>
+   <br/><br/>
+   <div id="text" style="width: 800px; margin: 0 auto; text-align:left">
+    This illustrates the fact that the projection from the helix to
+    the annulus is a covering map.  For each sufficiently small patch
+    in the annulus, the preimage in the helix is a disjoint union of a
+    discrete set of homeomorphic patches.  This is essentially the
+    same as the behaviour of the exponential map $\exp\colon B\to A$,
+    where
+    \begin{align*}
+     B &= \{ x + iy \in \mathbb{C} \;|\; 1 < x < 2 \} \\
+     A &= \{ z \in \mathbb{C} \;|\; e < |z| < e^2 \}.						
+    \end{align*}
+    <br/><br/>
+    You can click and drag the patch, or use the mouse wheel to change the size of the patch.
+   </div>
+  </div>
+ <script>
+
+  var demo = {};
+
+  demo.init = function() {
+   var me = this;
+   
+   this.svg = document.getElementById("main_svg");
+   this.svg.setAttribute('viewBox','-2.5 -2.5 5.0 5.0');
+
+   this.annulus = {};
+   this.annulus.r = 1;
+   this.annulus.w = 1;
+   
+   this.annulus.big_disc   = algtop.svg.disc(0.0,0.0,this.annulus.r + this.annulus.w,'#8080FF');
+   this.annulus.small_disc = algtop.svg.disc(0.0,0.0,this.annulus.r,'#FFFFFF');
+   
+   this.svg.appendChild(this.annulus.big_disc);
+   this.svg.appendChild(this.annulus.small_disc);
+    
+   this.annulus.embedding = function(t,u) {
+    var t1 = 2 * Math.PI * t;
+    var r0 = this.r + u * this.w;
+    return [r0 * Math.cos(t1), r0 * Math.sin(t1)];
+   }
+
+   this.canvas = document.getElementById("main_canvas");
+   this.engine =
+     new BABYLON.Engine(this.canvas, true, { preserveDrawingBuffer: true, stencil: true });
+
+   this.scene = algtop.basic_scene(this.engine,this.canvas);
+
+   this.spiral = Object.create(algtop.surface);
+   this.spiral.n = 256;   
+   this.spiral.m = 256;
+   this.spiral.r = 1.5;
+   this.spiral.w = 1.5;
+   this.spiral.h = 0.8;
+   this.spiral.p = 6;
+   
+   this.spiral.embedding = function(t,u) {
+    var t0 = this.p * (t - 0.5);
+    var t1 = 2 * Math.PI * t0;
+    var r0 = this.r + u * this.w;
+    return [r0 * Math.sin(t1), - this.h * t0, r0 * Math.cos(t1)];
+   }
+   
+   this.spiral.make_mesh(this.scene);
+
+   this.patch = {};
+   this.patch.m = 64;
+   this.patch.p = this.spiral.p;
+   this.patch.t = 0;
+   this.patch.u = 0.5;
+   this.patch.dt = 0.02;
+   this.patch.du = 0.1;
+   this.patch.drag = false;
+   this.patch.svg = algtop.svg.node('path');
+   this.patch.svg.setAttribute('stroke','none');
+   this.patch.svg.setAttribute('fill','#FF9933');
+   
+   this.patch.lifts = [];
+   for (i = 0; i < this.spiral.p; i++) {
+    for (j = 0; j < 2; j++) {
+     var l = Object.create(algtop.surface);
+     l.t = 0.5 + i / this.patch.p;
+     l.e = (j == 0) ? -0.01 : 0.01;
+     if (l.t > 1) { l.t -= 1; }
+     l.embedding = function(x,y) {
+      var t0 = this.t + (2 * x - 1) * me.patch.dt / me.patch.p;
+      var u0 = me.patch.u + (2 * y - 1) * me.patch.du;
+      var x = me.spiral.embedding(t0,u0); 
+      return [x[0],x[1] + this.e, x[2]];
+     }
+     l.make_mesh(this.scene);
+     algtop.set_colour(l.mesh,1,0.56,0.19);
+
+     this.patch.lifts.push(l);
+    }
+   }
+
+   this.patch.set_path = function() {
+    var p = [];
+    for (i = 0; i < this.m; i++) {
+     p.push(me.annulus.embedding(this.t + (2 * i / this.m - 1) * this.dt, this.u - this.du));
+    }
+    for (i = 0; i < this.m; i++) {
+     p.push(me.annulus.embedding(this.t + this.dt, this.u + (2 * i / this.m - 1) * this.du));
+    }
+    for (i = 0; i < this.m; i++) {
+     p.push(me.annulus.embedding(this.t + (1 - 2 * i / this.m) * this.dt, this.u + this.du));
+    }
+    for (i = 0; i < this.m; i++) {
+     p.push(me.annulus.embedding(this.t - this.dt, this.u + (1 - 2 * i / this.m ) * this.du));
+    }
+
+    this.svg.setAttribute('d',algtop.svg.points_string(p));
+
+    for (i in this.lifts) {
+     var l = this.lifts[i];
+     l.t = (Math.round(l.t * this.p - this.t) + this.t) / this.p;
+     if (l.t > 1) { l.t -= 1; }
+     if (l.t < 0) { l.t += 1; }
+     l.update_mesh();
+     var o = Math.min(20 * l.t, 20 * (1 - l.t), 1);
+     l.mesh.material.alpha = o;
+    }
+   }
+
+   this.patch.set_path();
+   this.svg.appendChild(this.patch.svg);
+
+   this.svg.onwheel = function(e) {
+    me.handle_wheel(e);
+   }
+
+   this.svg.onmousedown = function() {
+    me.patch.drag = true;
+   }
+   
+   this.svg.onmouseup = function() {
+    me.patch.drag = false;
+   }
+   
+   this.svg.onmousemove = function(e) {
+    me.handle_move(e);
+   }
+   
+   this.engine.runRenderLoop(function () {
+    if (me.scene) {
+     me.scene.render();
+    }
+   });
+
+   window.addEventListener("resize", function () {
+    me.engine.resize();
+   });
+
+  }
+
+  demo.handle_wheel = function(e) {
+   var z = (e.deltaY > 0) ? 1 : -1;
+   var p = this.patch;
+
+   if (z == 1) {
+    p.dt = Math.min(0.48, p.dt + 0.01);
+    p.du = Math.min(0.5, p.du + 0.04);
+    if (p.u - p.du < 0) { p.u = p.du; }
+    if (p.u + p.du > 1) { p.u = 1 - p.du; }
+   } else {
+    p.dt = Math.max(0.02, p.dt - 0.01);
+    if (p.dt < 0.1) {
+     p.du = Math.max(0.1,p.du - 0.04);
+    }
+   }
+
+   p.set_path();
+  }
+
+  demo.handle_move = function(e) {
+   var p = this.patch;
+   if (! p.drag) {
+    return;
+   }
+   
+   var dx = e.movementX;
+   var dy = e.movementY;
+   var c = Math.cos(2 * Math.PI * p.t);
+   var s = Math.sin(2 * Math.PI * p.t);
+   var m = c * dx + s * dy;
+   var n = -s * dx + c * dy;
+   p.t = p.t + 0.001 * n;
+   p.u = p.u + 0.005 * m;
+   if (p.u - p.du < 0) { p.u = p.du; }
+   if (p.u + p.du > 1) { p.u = 1 - p.du; }
+   p.set_path();
+  }
+  
+  demo.init();
+ </script>
+</body>
+</html>

@@ -1,0 +1,141 @@
+<html>
+ <head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RP1 and the circle</title>
+  <style type="text/css" media="screen">
+   @import url(algtop_demo.css);
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js"> 
+   MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX","output/HTML-CSS"],
+    tex2jax: {inlineMath: [["$","$"]]}
+   });
+  </script> 
+  <script src="https://preview.babylonjs.com/babylon.js"></script>
+  <script src="algtop.js"></script>
+  <script src="letters.js"></script>
+  <script>
+   var demo = {};
+   
+   demo.init = function() {
+    var i,c,x,g,u,v;
+
+    var me = this;
+
+    var d = document.getElementById('alt_pic');
+    d.onclick = function() {
+     window.location = 'RP1_eq_S1_alt.html';
+    }
+    
+    this.r  = 180;
+    this.x0 = 250;
+    this.y0 = 220;
+    this.x1 = 750;
+    this.y1 = 220;
+    
+    this.main_svg     = document.getElementById('main_svg');
+    this.left_circle  = algtop.svg.circle(this.x0,this.y0,this.r,'#0000FF',3);
+    this.right_circle = algtop.svg.circle(this.x1,this.y1,this.r,'#01452C',3);
+    this.w0_marker    = algtop.svg.disc(this.x0 + this.r, this.y0, 5, '#FF0000');
+    this.w1_marker    = algtop.svg.disc(this.x0 - this.r, this.y0, 5, '#FF0000');
+    this.z_marker     = algtop.svg.disc(this.x1 + this.r, this.y0, 5, '#FF0000');
+    
+    this.left_circle.setAttribute('pointer-events','none');
+    this.right_circle.setAttribute('pointer-events','none');
+    this.w0_marker.setAttribute('pointer-events','none');
+    this.w1_marker.setAttribute('pointer-events','none');
+    this.z_marker.setAttribute('pointer-events','none');
+
+    this.main_svg.appendChild(this.left_circle);
+    this.main_svg.appendChild(this.right_circle);
+    this.main_svg.appendChild(this.w0_marker);
+    this.main_svg.appendChild(this.w1_marker);
+    this.main_svg.appendChild(this.z_marker);
+
+    this.t  = 0;
+    
+    this.drag = false;
+    this.move_mode = 1;
+    
+    this.main_svg.onmouseout = function(e) {
+     me.drag = false;
+    }
+
+    this.main_svg.onmousedown = function(e) {
+     me.drag = true;
+     var p = me.main_svg.createSVGPoint();
+     p.x = e.clientX;
+     p.y = e.clientY;
+     var q = p.matrixTransform(me.main_svg.getScreenCTM().inverse());
+
+     if (q.x < (me.x0 + me.x1)/2) {
+      me.move_mode = 0;
+     } else {
+      me.move_mode = 1;
+     }
+     
+     me.handle_mousemove(e);
+    }
+
+    this.main_svg.onmouseup = function(e) {
+     me.drag = false;
+    }
+
+    this.main_svg.onmousemove = function(e) {
+     if (me.drag) {
+      me.handle_mousemove(e);
+     }
+    }
+   };
+   
+   demo.handle_mousemove = function(e) {
+    var p = this.main_svg.createSVGPoint();
+    p.x = e.clientX;
+    p.y = e.clientY;
+    var q = p.matrixTransform(this.main_svg.getScreenCTM().inverse());
+
+    if (this.move_mode == 0) {
+     this.t = Math.atan2(q.y - this.y0, q.x - this.x0) * 2;
+    } else {
+     this.t = Math.atan2(q.y - this.y1, q.x - this.x1);
+    }
+    
+    this.w0_marker.setAttribute('cx',this.x0 + this.r * Math.cos(this.t/2));
+    this.w0_marker.setAttribute('cy',this.y0 + this.r * Math.sin(this.t/2));
+    this.w1_marker.setAttribute('cx',this.x0 - this.r * Math.cos(this.t/2));
+    this.w1_marker.setAttribute('cy',this.y0 - this.r * Math.sin(this.t/2));
+    this.z_marker.setAttribute('cx',this.x1 + this.r * Math.cos(this.t));
+    this.z_marker.setAttribute('cy',this.y1 + this.r * Math.sin(this.t));
+   }
+   
+   
+  </script>
+ </head>
+ <body onload="demo.init()">
+  <div id="frame>"
+   <div style="width: 1000px; height: 0px; margin: 0 auto;">
+    <div id="control_div" style="position:absolute; left:50px; top:50px;">
+     <div class="control" style="width: 150px;" id="index" onclick="location='index.php'">Index</div>
+     <div class="control" style="width: 150px;" id="alt_pic">Alternative picture</div>
+    </div>
+    <div style="position:absolute">
+     <svg id="main_svg" width="1000" height="500"></svg>
+     <div style="position: absolute; left: 240px; top:410px;">$\mathbb{R}P^1$</div>
+     <div style="position: absolute; left: 740px; top:410px;">$S^1$</div>
+     <div id="msg" style="position: absolute; left: 100px; top: 480px; width: 800px; margin: 0 auto;">
+      This illustrates the fact that $\mathbb{R}P^1$ is homeomorphic to
+      $S^1$.  Here we regard $S^1$ as the space of complex numbers $z$
+      with $|z|=1$.  Recall that $\mathbb{R}P^1=S^1/E$, where $uEv$ iff
+      $v=\pm u$.  A point of $\mathbb{R}P^1$ is an equivalence class for
+      this relation, or in other words a pair of opposite points in
+      $S^1$, as shown on the left.  Given a single point $z\in S^1$, as
+      shown on the right, the two square roots of $z$ form an
+      equivalence class, as shown on the left.  By dragging the right
+      hand point you can see how the left hand pair varies continuously.
+     </div>
+    </div>
+   </div>
+  </div>
+ </body>
+</html>

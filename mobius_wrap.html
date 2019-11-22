@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+ <head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Möbius wrapping</title>
+  <style type="text/css" media="screen">
+   @import url(algtop_demo.css);
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js"> 
+   MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX","output/HTML-CSS"],
+    tex2jax: {inlineMath: [["$","$"]]}
+   });
+  </script> 
+  <script src="https://preview.babylonjs.com/babylon.js"></script>
+  <script src="algtop.js"></script>
+  <style>
+   html, body {
+       overflow: hidden;
+       width: 100%;
+       height: 100%;
+       margin: 0;
+       padding: 0;
+   }
+   
+   canvas {
+       width: 100%;
+       height: 600px;
+       touch-action: none;
+   }
+  </style>
+ </head>
+ <body>
+  <div id="control_div" style="position:absolute; left:10px; top:10px;">
+   <div class="control" style="width: 150px;" id="index" onclick="location='index.php'">Index</div>
+  </div>
+  <div style="text-align:center">
+   <canvas id="main_canvas"></canvas>
+   <div id="slidecontainer" style="width: 800px; margin: 0 auto;">
+    <input type="range" min="0" max="100" value="0" class="slider" id="stage_slider">
+   </div>
+   <br/><br/>
+   <div id="text" style="width: 800px; margin: 0 auto; text-align:left">
+    This shows how we can make a Möbius strip by starting with an annulus
+    and gluing together opposite points on the outer circle.
+   </div>
+  </div>
+ <script>
+
+  var demo = {};
+
+  demo.init = function() {
+   var tt,t,k,col,mat,v,i,p,cols,me;
+
+   var me = this;
+   
+   this.slider = document.getElementById("stage_slider");
+   this.canvas = document.getElementById("main_canvas");
+   this.engine =
+     new BABYLON.Engine(this.canvas, true, { preserveDrawingBuffer: true, stencil: true });
+
+   this.scene = algtop.basic_scene(this.engine,this.canvas);
+   this.scene.camera.radius = 10;
+   
+   this.rims  = [];
+   
+   var S = Object.create(algtop.surface);
+   S.n = 128;
+
+   S.embedding = function(t,u) {
+    var s = me.s;
+
+    var ct = Math.cos(2*Math.PI*t);
+    var st = Math.sin(2*Math.PI*t);
+    var cT = Math.cos(4*Math.PI*t);
+    var sT = Math.sin(4*Math.PI*t);
+    var ss = Math.sin(  Math.PI*s);
+
+    var x = (1-s)*(3-u)*ct+s*(2+u*ct)*cT;
+    var y = (1-s)*(3-u)*st+s*(2+u*ct)*sT;
+    var z = s*u*st+ss*(u+ct);
+
+    return [x,z,y];
+   }
+
+   this.s = 0;
+   S.make_mesh(this.scene);
+   algtop.set_colour(S.mesh,0.5,0.5,1);
+   this.surf = S;
+      
+   var C;
+
+   C = Object.create(algtop.thick_curve);
+   C.colour = new BABYLON.Color4(1,0,0,1);
+   C.embedding = function(t) {
+    return me.surf.embedding(t/2,0);
+   }
+   this.rims.push(C);
+
+   C = Object.create(algtop.thick_curve);
+   C.colour = new BABYLON.Color4(0,1,0,1);
+   C.embedding = function(t) {
+    return me.surf.embedding((t+1)/2,0);
+   }
+   this.rims.push(C);
+
+   for (j in this.rims) {
+    this.rims[j].radius = 0.02;
+    this.rims[j].make_mesh(this.scene);
+   }
+
+   this.engine.runRenderLoop(function () {
+    if (me.scene) {
+     me.scene.render();
+    }
+   });
+
+   window.addEventListener("resize", function () {
+    me.engine.resize();
+   });
+
+   this.slider.oninput = function() {
+    me.set_stage(this.value);
+   }
+  }
+
+  demo.set_stage = function(i) {
+   var x = 0;
+   var s = parseInt(i) * 0.01;
+   this.s = s;
+   this.surf.update_mesh();
+
+   for (j in this.rims) {
+    this.rims[j].update_mesh();
+   }
+  }
+  
+  demo.init();
+ </script>
+</body>
+</html>

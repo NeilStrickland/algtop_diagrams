@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html>
+ <head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Skeleta</title>
+  <style type="text/css" media="screen">
+   @import url(algtop_demo.css);
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js"> 
+   MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX","output/HTML-CSS"],
+    tex2jax: {inlineMath: [["$","$"]]}
+   });
+  </script> 
+  <script src="https://preview.babylonjs.com/babylon.js"></script>
+  <script src="algtop.js"></script>
+
+  <style>
+   html, body {
+       width: 100%;
+       margin: 0;
+       padding: 0;
+       font-family: arial, verdana;
+       background: white;
+   }
+   
+   canvas {
+       width: 100%;
+       height: 500px;
+       touch-action: none;
+   }
+
+   div.simplex {
+       text-align: center;
+       display : inline-block;
+       border : 1px solid black;
+   }
+
+  </style>
+ </head>
+ <body>
+  <div id="control_div" style="position:absolute; left:10px; top:10px;">
+   <div class="control" style="width: 150px;" id="index" onclick="location='index.php'">Index</div>
+   <div class="control" style="width: 150px;" id="dim0" onclick="demo.set_dim(0)">0-skeleton</div>
+   <div class="control" style="width: 150px;" id="dim1" onclick="demo.set_dim(1)">1-skeleton</div>
+   <div class="control" style="width: 150px;" id="dim2" onclick="demo.set_dim(2)">2-skeleton</div>
+   <div class="control_selected" style="width: 150px;" id="dim3" onclick="demo.set_dim(3)">3-skeleton</div>
+  </div>
+  <div style="text-align: center;">
+   <canvas id="simplex_canvas"></canvas><br/>
+  </div>
+  <br/><br/>
+  <div id="text" style="width: 800px; margin: 0 auto; text-align:left">
+   This shows the skeleta of the simplex $\Delta_3$.  The full simplex
+   is the set of points $(x_0,x_1,x_2,x_3)\in\mathbb{R}^4$ where
+   $x_0,x_1,x_2,x_3\geq 0$ and $x_0+x_1+x_2+x_3=1$.  The $k$-skeleton
+   is the subspace where at least $3-k$ of the coordinates $x_i$ are
+   zero. 
+   <br/><br/>
+   <div id="msg0" style="display:none">The $0$-skeleton just consists
+    of the four vertices of the tetrahedron.
+   </div> 
+   <div id="msg1" style="display:none">The $1$-skeleton consists of
+    the four vertices together with the six edges joinng them.
+   </div>
+   <div id="msg2" style="display:none">The $2$-skeleton consists of
+    the four triangular faces of the tetrahedron together with their
+    edges and vertices.  However, the solid volume in the middle is
+    not part of the $2$-skeleton.
+   </div>
+   <div id="msg3">The $3$-skeleton consists of the full solid tetrahedron.
+   </div>
+  </div>
+ <script>
+  var demo = {
+  
+  };
+
+  demo.init = function () {
+   var me, i, v,e,f;
+   
+   me = this;
+
+   this.canvas = document.getElementById('simplex_canvas');
+   this.dim_select = document.getElementById('dim');
+   this.control = [];
+   this.msg = [];
+   for (i = 0; i < 4; i++) {
+    this.control.push(document.getElementById('dim' + i));
+    this.msg.push(document.getElementById('msg' + i));
+   }
+   this.dim = 3;
+
+   
+   this.engine =
+     new BABYLON.Engine(this.canvas, true, { preserveDrawingBuffer: true, stencil: true });
+    this.scene = algtop.basic_scene(this.engine,this.canvas);
+    this.scene.camera.setPosition(new BABYLON.Vector3(4,2,3));
+    
+   this.v_col = [1.0,0.0,0.0];
+   this.e_col = [0.0,1.0,0.0];
+   this.f_col = [0.5,0.5,1.0];
+   
+   var w = [
+    algtop.simplex3_embedding([1,0,0,0]),
+    algtop.simplex3_embedding([0,1,0,0]),
+    algtop.simplex3_embedding([0,0,1,0]),
+    algtop.simplex3_embedding([0,0,0,1])
+   ];
+
+   var wb = [];
+   for (i in w) {
+    wb.push(algtop.bab.vect(w[i]));
+   }
+   
+   this.f = [];
+
+   for (j = 0; j <= 3; j++) {
+    for (k = j + 1; k <= 3; k++) {
+     for (l = k + 1; l <= 3; l++) {
+      f = {};
+      f.indices = [j,k,l];
+      f.vertices = [w[j],w[k],w[l]];
+      f.mesh = algtop.bab.triangle(w[j],w[k],w[l],this.f_col,this.scene);
+      this.f.push(f);
+     }
+    }
+   }
+
+   this.e = [];
+   for (j = 0; j <= 3; j++) {
+    for (k = j + 1; k <= 3; k++) {
+     e = {};
+     e.indices = [j,k];
+     e.points = [wb[j],wb[k]];
+     e.col = algtop.bab.col4(this.e_col);
+     e.cols = [e.col,e.col];
+     e.mesh = BABYLON.MeshBuilder.CreateLines("edge_" + j + k,
+      {points : e.points, colors : e.cols, alpha : 1, updatable : true}, this.scene);
+     this.e.push(e);
+    }
+   }
+
+   this.v = [];
+   for (j = 0; j <= 3; j++) {
+    v = {};
+    v.index = j;
+    v.point = wb[j];
+    v.mesh = algtop.bab.point(w[j],this.v_col,0.05, this.scene);
+    this.v.push(v);
+   }
+
+   this.engine.runRenderLoop(function () {
+    if (me.scene) {
+     me.scene.render();
+    }});
+   
+   window.addEventListener("resize", function () {
+    me.engine.resize();
+   });
+  };
+
+  demo.show_edges = function(x) {
+   var col, i,e,p,m,cols;
+   
+   col = new BABYLON.Color3(this.e_col[0],this.e_col[1],this.e_col[2]);
+   col.a = x ? 1 : 0;
+    
+   for (i in this.e) {
+    e = this.e[i];
+    p = e.points;
+    m = p.length;
+    cols = Array(m).fill(col);
+    e.mesh = BABYLON.MeshBuilder.CreateLines(null,{points : p, colors : cols, instance : e.mesh}, this.scene);
+   }
+  }
+  
+  demo.show_faces = function(x) {
+   var col, i,p,c;
+
+   for (i in this.f) {
+    this.f[i].mesh.material.alpha = x;
+   }
+  }
+  
+  demo.set_dim = function(i) {
+   this.dim = i;
+
+   if (this.dim == 0) {
+    this.show_edges(0);
+    this.show_faces(0);
+   } else if (this.dim == 1) {
+    this.show_edges(1);
+    this.show_faces(0);
+   } else if (this.dim == 2) {
+    this.show_edges(1);
+    this.show_faces(0.5);
+   } else {
+    this.show_edges(1);
+    this.show_faces(1);
+   }
+
+   for (j = 0; j < 4; j++) {
+    this.control[j].className =
+     (j == i) ? 'control_selected' : 'control';
+    this.msg[j].style.display = (j == i) ? 'block' : 'none';
+   }
+  }
+  
+  demo.init();
+  
+ </script>
+</body>
+</html>

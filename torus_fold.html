@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+ <head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Torus folding</title>
+  <style type="text/css" media="screen">
+   @import url(algtop_demo.css);
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js"> 
+   MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX","output/HTML-CSS"],
+    tex2jax: {inlineMath: [["$","$"]]}
+   });
+  </script> 
+  <script src="https://preview.babylonjs.com/babylon.js"></script>
+  <script src="algtop.js"></script>
+  <style>
+   html, body {
+       overflow: hidden;
+       width: 100%;
+       height: 100%;
+       margin: 0;
+       padding: 0;
+   }
+   
+   canvas {
+       width: 100%;
+       height: 600px;
+       touch-action: none;
+   }
+  </style>
+ </head>
+ <body>
+  <div id="control_div" style="position:absolute; left:10px; top:10px;">
+   <div class="control" style="width: 150px;" id="index" onclick="location='index.php'">Index</div>
+  </div>
+  <div style="text-align:center">
+   <canvas id="main_canvas"></canvas>
+   <div id="slidecontainer" style="width: 800px; margin: 0 auto;">
+    <input type="range" min="0" max="100" value="0" class="slider" id="stage_slider">
+   </div>
+   <br/><br/>
+   <div id="text" style="width: 800px; margin: 0 auto; text-align:left">
+    This shows how we can make a torus by gluing opposite edges of a square.
+   </div>
+  </div>
+ <script>
+
+  var demo = {};
+
+  demo.init = function() {
+   var tt,t,k,col,mat,v,i,p,cols,me;
+
+   var me = this;
+   
+   this.slider = document.getElementById("stage_slider");
+   this.canvas = document.getElementById("main_canvas");
+   this.engine =
+     new BABYLON.Engine(this.canvas, true, { preserveDrawingBuffer: true, stencil: true });
+
+   this.scene = algtop.basic_scene(this.engine,this.canvas);
+   this.scene.camera.radius = 5;
+   
+   this.rims  = [];
+   
+   var S = Object.create(algtop.surface);
+
+   S.embedding = function(p,q) {
+    var s = me.s;
+    var x = 2 * p - 1;
+    var y = 2 * q - 1;
+    var X,Y,Z;
+    
+    if (s == 0.0) {
+     X = x; Y = y; Z = 0;
+    } else if (s == 0.5) {
+     X = x;
+     Y = Math.sin(Math.PI * y)/Math.PI;
+     Z = (1 - Math.cos(Math.PI * y))/Math.PI;
+    } else if (s < 0.5) {
+     var t = 2 * s;
+     X = x;
+     Y = Math.sin(Math.PI * t * y)/(Math.PI * t);
+     Z = (1 - Math.cos(Math.PI * t * y))/(Math.PI * t);
+    } else {
+     var t = 2 * s - 1;
+     var r = 2 / (Math.PI * t);
+     var theta = Math.PI * (t + t * t) * x / 2;
+     var phi   = Math.PI * (y - t / 2);
+     X = (r - Math.sin(phi)/Math.PI) * Math.sin(theta);
+     Y = -(r - Math.sin(phi)/Math.PI) * Math.cos(theta) + r;
+     Z = (1 - Math.cos(phi))/Math.PI;
+    }
+
+    return [Y,Z,X];
+   }
+
+   this.s = 0;
+   S.make_mesh(this.scene);
+   algtop.set_colour(S.mesh,0.5,0.5,1);
+   this.surf = S;
+      
+   var C;
+
+   C = Object.create(algtop.thick_curve);
+   C.colour = new BABYLON.Color4(1,0,0,1);
+   C.embedding = function(t) {
+    return me.surf.embedding(t,0);
+   }
+   this.rims.push(C);
+
+   C = Object.create(algtop.thick_curve);
+   C.colour = new BABYLON.Color4(1,0,0,1);
+   C.embedding = function(t) {
+    return me.surf.embedding(t,1);
+   }
+   this.rims.push(C);
+
+   C = Object.create(algtop.thick_curve);
+   C.colour = new BABYLON.Color4(0,1,0,1);
+   C.embedding = function(t) {
+    return me.surf.embedding(0,t);
+   }
+   this.rims.push(C);
+
+   C = Object.create(algtop.thick_curve);
+   C.colour = new BABYLON.Color4(0,1,0,1);
+   C.embedding = function(t) {
+    return me.surf.embedding(1,t);
+   }
+   this.rims.push(C);
+
+   for (j in this.rims) {
+    this.rims[j].radius = 0.01;
+    this.rims[j].make_mesh(this.scene);
+   }
+
+   this.engine.runRenderLoop(function () {
+    if (me.scene) {
+     me.scene.render();
+    }
+   });
+
+   window.addEventListener("resize", function () {
+    me.engine.resize();
+   });
+
+   this.slider.oninput = function() {
+    me.set_stage(this.value);
+   }
+  }
+
+  demo.set_stage = function(i) {
+   var x = 0;
+   var s = parseInt(i) * 0.01;
+   this.s = s;
+   this.surf.update_mesh();
+
+   for (j in this.rims) {
+    this.rims[j].update_mesh();
+   }
+  }
+  
+  demo.init();
+ </script>
+</body>
+</html>

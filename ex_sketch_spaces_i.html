@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+ <head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Thick shell</title>
+  <style type="text/css" media="screen">
+   @import url(algtop_demo.css);
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js"> 
+   MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX","output/HTML-CSS"],
+    tex2jax: {inlineMath: [["$","$"]]}
+   });
+  </script> 
+  <script src="https://preview.babylonjs.com/babylon.js"></script>
+  <script src="algtop.js"></script>
+  <script src="json/ico_oct_data.js"></script>
+  <style>
+   html, body {
+       overflow: hidden;
+       width: 100%;
+       height: 100%;
+       margin: 0;
+       padding: 0;
+   }
+
+   .canvas {
+       width: 400;
+       height: 400;
+       touch-action: none;
+   }
+
+   div.surface {
+       text-align: center;
+       display : inline-block;
+       border : 1px solid black;
+   }
+   
+  </style>
+ </head>
+ <body>
+  <div style="max-width:1300px" id="container"></div>
+  <script>
+  var demo = {
+  
+  };
+
+  demo.p = function(r,t,u) {
+   var x = algtop.sphere.embedding(t,u);  
+   return [r * x[0], r * x[1], r * x[2]];
+  };
+   
+  demo.init = function () {
+   var me = this;
+
+   surfaces0 = [
+    ['two_spheres', '$S^0\\times S^2$'],
+    ['cylinder'   , '$S^1\\times [0,1]$'],
+    ['torus'      , '$S^1\\times S^1$'],
+    ['thick_shell', '$S^2\\times [0,1]$']
+   ];
+
+   this.container = document.getElementById('container');
+   this.frames = [];
+
+   console.log(window);
+   
+   for (i in surfaces0) {
+    var f = {};
+    this.frames.push(f);
+    var n = surfaces0[i][0];
+    f.name = n;
+    f.title = surfaces0[i][1];
+    f.div = document.createElement('div');
+    f.div.className = 'surface';
+    f.canvas = document.createElement('canvas');
+    f.canvas.width  = 300;
+    f.canvas.height = 300;
+    f.div.appendChild(f.canvas);
+    f.title_div = document.createElement('div');
+    f.title_div.innerHTML = f.title;
+    f.div.appendChild(f.title_div);
+    this.container.appendChild(f.div);
+    
+    f.engine =
+     new BABYLON.Engine(f.canvas, true, { preserveDrawingBuffer: true, stencil: true });
+    f.scene = algtop.basic_scene(f.engine,f.canvas);
+
+    if (n == 'two_spheres') {
+     var r = 1.5;
+     f.meshes = [];
+     for (i = 0; i < 2; i++) {
+      var m = BABYLON.MeshBuilder.CreateSphere("s0", {diameter : 2*r}, f.scene);
+      var c = algtop.surface.colour;
+      algtop.set_colour(m,c.r,c.g,c.b);
+      m.position = algtop.bab.vect([0,0,1.2*r*(2*i-1)]);
+      f.meshes.push(m);
+     }
+    } else if (n == 'thick_shell') {
+     var r = 0.5;
+     f.inner_sphere = Object.create(algtop.surface);
+     f.inner_sphere.embedding = function(t,u) { return me.p(r,t,0.75 * u); }
+     f.inner_sphere.normal    = function(t,u) { return me.p(1,t,0.75 * u); }
+     f.inner_sphere.make_mesh(f.scene);
+     
+     f.outer_sphere = Object.create(algtop.surface);
+     f.outer_sphere.embedding = function(t,u) { return me.p(2*r,t,0.75 * u); }
+     f.outer_sphere.normal    = function(t,u) { return me.p(  1,t,0.75 * u); }
+     f.outer_sphere.make_mesh(f.scene);
+     
+     f.wall0 = Object.create(algtop.surface);
+     f.wall0.embedding = function(t,u) { return me.p(r * (1 + u),t,0); }
+     f.wall0.normal    = function(t,u) { return [0,0,1]; }
+     f.wall0.make_mesh(f.scene);
+     algtop.set_colour(f.wall0.mesh,1,0.5,0);
+     
+     f.wall1 = Object.create(algtop.surface);
+     f.wall1.embedding = function(t,u) { return me.p(r * (1 + u),t,0.75); }
+     f.wall1.normal    = function(t,u) { return [-1,0,0]; }
+     f.wall1.make_mesh(f.scene);
+     algtop.set_colour(f.wall1.mesh,1,0.5,0);
+          
+     f.inner_lattice = Object.create(algtop.surface);
+     f.inner_lattice.n = 12;
+     f.inner_lattice.m = 6;
+     f.inner_lattice.embedding = function(t,u) {
+      var x = algtop.sphere.normal(t,0.25*(3+u));
+      return [r*x[0], r*x[1], r*x[2]];
+     }
+     f.inner_lattice.normal = function(t,u) {
+      return algtop.sphere.normal(t,0.25*(3+u));
+     }
+//     f.inner_lattice.make_mesh(f.scene);
+//     var mat = new BABYLON.StandardMaterial("wire", f.scene);
+//     mat.wireframe = true;
+//     f.inner_lattice.mesh.material = mat;     
+
+     f.outer_lattice = Object.create(algtop.surface);
+     f.outer_lattice.n = 12;
+     f.outer_lattice.m = 6;
+     f.outer_lattice.embedding = function(t,u) {
+      var x = algtop.sphere.normal(t,0.25*(3+u));
+      return [2*r*x[0], 2*r*x[1], 2*r*x[2]];
+     }
+     f.outer_lattice.normal = function(t,u) {
+      return algtop.sphere.normal(t,0.25*(3+u));
+     }
+//     f.outer_lattice.make_mesh(f.scene);
+//     var mat = new BABYLON.StandardMaterial("wire", f.scene);
+//     mat.wireframe = true;
+//     f.outer_lattice.mesh.material = mat;     
+    } else {
+     f.surface = Object.create(algtop[n]);
+     f.surface.make_mesh(f.scene);
+    }
+    
+    this.set_frame_callbacks(f);
+   };
+  };
+  
+  demo.set_frame_callbacks = function(f) {
+   f.engine.runRenderLoop(function () {
+    if (f.scene) {
+     f.scene.render();
+    }});
+   
+   window.addEventListener("resize", function () {
+    me.engine.resize();
+   });
+  };
+
+  demo.init();
+ </script>
+</body>
+</html>

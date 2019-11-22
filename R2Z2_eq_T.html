@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html>
+ <head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>R2/Z2 is a torus</title>
+  <style type="text/css" media="screen">
+   @import url(algtop_demo.css);
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js"> 
+   MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX","output/HTML-CSS"],
+    tex2jax: {inlineMath: [["$","$"]]}
+   });
+  </script> 
+  <script src="https://preview.babylonjs.com/babylon.js"></script>
+  <script src="algtop.js"></script>
+  <style>
+   html, body {
+       overflow: hidden;
+       width: 100%;
+       height: 100%;
+       margin: 0;
+       padding: 0;
+   }
+   
+   canvas {
+       width: 800px;
+       height: 600px;
+       touch-action: none;
+   }
+  </style>
+ </head>
+ <body>
+  <div id="control_div" style="position:absolute; left:10px; top:10px;">
+   <div class="control" style="width: 150px;" id="index" onclick="location='index.php'">Index</div>
+  </div>
+  <div style="text-align:center">
+   <div>
+    <svg width="600" height="600" id="main_svg"></svg>
+    <canvas id="main_canvas"></canvas>
+   </div>
+   <br/><br/>
+   <div id="text" style="width: 800px; margin: 0 auto; text-align:left">
+    This illustrates the homeomorphism between the quotient space
+    $\mathbb{R}^2/E$ and the torus $T$, where $xEy$ iff
+    $x-y\in\mathbb{Z}^2$.  The equivalence classes for $E$ are cosets
+    of the subgroup $\mathbb{Z}^2<\mathbb{R}^2$.  Each coset is a
+    regular array of dots, as shown on the left.  The point in $T$
+    corresponding to a given coset is shown on the right.  You can drag
+    the coset (or use the arrow keys) and watch the motion of the
+    point on $T$.  Note that if you drag the dots one space to the
+    right then the new grid is the same as the old one and the point
+    on $T$ travels all the way around and returns to its starting point.
+   </div>
+  </div>
+ <script>
+
+  var demo = {};
+
+  demo.init = function() {
+   var i,j;
+   var me = this;
+   
+   this.n = 3;
+   var u = 0.5 - this.n;
+   var v = 2 * this.n - 1;
+   
+   this.svg = document.getElementById("main_svg");
+   this.svg.setAttribute('viewBox','' + u + ' ' + u + ' ' + v + ' ' + v);
+
+   for (i = -this.n; i <= this.n; i++) {
+    this.svg.appendChild(algtop.svg.hline(-this.n,this.n,i,'#88FFFF',0.01));
+    this.svg.appendChild(algtop.svg.vline(i,-this.n,this.n,'#FF88FF',0.01));
+   }
+   
+   this.x = 0;
+   this.y = 0;
+   this.grid_markers = [];
+   for (i = -this.n; i <= this.n; i++) {
+    for (j = -this.n; j <= this.n; j++) {
+     m = {};
+     m.i = i;
+     m.j = j;
+     m.svg = algtop.svg.disc(i,j,0.03,'#FF0000');
+     this.paint_marker(m);
+     this.svg.appendChild(m.svg);
+     this.grid_markers.push(m);
+    }
+   }
+   
+   this.canvas = document.getElementById("main_canvas");
+   this.engine =
+     new BABYLON.Engine(this.canvas, true, { preserveDrawingBuffer: true, stencil: true });
+
+   this.scene = algtop.basic_scene(this.engine,this.canvas);
+
+   this.torus = Object.create(algtop.torus);
+   this.torus.make_mesh(this.scene);
+
+   this.x_ring = Object.create(algtop.thick_curve);
+   this.x_ring.embedding = function(t) {
+    return me.torus.embedding(t,0);
+   }
+   this.x_ring.colour = new BABYLON.Color4(0.5,1,1,1);
+   this.x_ring.radius = 0.01;
+   this.x_ring.make_mesh();
+    
+   this.y_ring = Object.create(algtop.thick_curve);
+   this.y_ring.embedding = function(t) {
+    return me.torus.embedding(0,t);
+   }
+   this.y_ring.colour = new BABYLON.Color4(1,0.5,1,1);
+   this.y_ring.radius = 0.01;
+   this.y_ring.make_mesh();
+    
+   this.marker = algtop.bab.point(this.torus.embedding(0,0),[1,0,0],0.1,this.scene);
+   
+   this.drag = false;
+
+   this.svg.onmousedown = function() {
+    me.drag = true;
+   }
+   
+   this.svg.onmouseup = function() {
+    me.drag = false;
+   }
+   
+   this.svg.onmousemove = function(e) {
+    me.handle_move(e);
+   }
+
+   window.onkeydown = function(e) {
+    var eps = 0.005;
+    
+    if (e.key == 'ArrowRight') {
+     me.x += eps; me.paint_markers();
+    } else if (e.key == 'ArrowLeft') {
+     me.x -= eps; me.paint_markers();
+    } else if (e.key == 'ArrowUp') {
+     me.y -= eps; me.paint_markers();
+    } else if (e.key == 'ArrowDown') {
+     me.y += eps; me.paint_markers();
+    } else {
+     return(false);
+    }
+   }
+   
+   this.engine.runRenderLoop(function () {
+    if (me.scene) {
+     me.scene.render();
+    }
+   });
+
+   window.addEventListener("resize", function () {
+    me.engine.resize();
+   });
+
+  }
+
+  demo.paint_marker = function(m) {
+   var x = m.i + this.x;
+   var y = m.j + this.y;
+   var r = Math.max(Math.abs(x),Math.abs(y));
+   var o;
+   
+   if (r <= this.n-1) {
+    o = 1;
+   } else if (r <= this.n - 0.5) {
+    o = 2 * (this.n - 0.5 - r);
+   } else {
+    o = 0;
+   }
+   m.svg.setAttribute('cx',x);
+   m.svg.setAttribute('cy',y);
+   m.svg.setAttribute('fill-opacity',o);   
+  }
+
+  demo.paint_markers = function() {
+   var i;
+
+   this.x -= Math.floor(this.x);
+   this.y -= Math.floor(this.y);
+   
+   for (i in this.grid_markers) {
+    this.paint_marker(this.grid_markers[i]);
+   }
+
+   this.marker.position = algtop.bab.vect(this.torus.embedding(this.x,-this.y));
+  }
+  
+  demo.handle_move = function(e) {
+   if (! this.drag) { return; }
+   
+   var dx = e.movementX * (2 * this.n - 1) / 600;
+   var dy = e.movementY * (2 * this.n - 1) / 600;
+   this.x += dx;
+   this.y += dy;
+   this.x -= Math.floor(this.x);
+   this.y -= Math.floor(this.y);
+   this.paint_markers();
+  }
+  
+  demo.init();
+ </script>
+</body>
+</html>

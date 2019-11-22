@@ -1,0 +1,130 @@
+<html>
+ <head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Open sets</title>
+  <style type="text/css" media="screen">
+   @import url(algtop_demo.css);
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js"> 
+   MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX","output/HTML-CSS"],
+    tex2jax: {inlineMath: [["$","$"]]}
+   });
+  </script> 
+  <script src="https://preview.babylonjs.com/babylon.js"></script>
+  <script src="algtop.js"></script>
+  <script src="letters.js"></script>
+  <script>
+   var demo = {};
+   
+   demo.init = function() {
+    var i,c,x,g,u,v;
+
+    var me = this;
+    
+    this.main_svg   = document.getElementById('main_svg');
+    this.left_disk  = document.getElementById('left_disk');
+    this.right_disk = document.getElementById('right_disk');
+    this.right_bdy  = document.getElementById('right_bdy');
+    this.marker     = document.getElementById('marker');
+    this.msg        = document.getElementById('msg');
+    
+    this.msgs = [];
+    this.msgs.push(document.getElementById('msg0'));
+    this.msgs.push(document.getElementById('msg1'));
+    this.msgs.push(document.getElementById('msg2'));
+    
+    this.main_svg.onmousemove = function(e) {
+     me.handle_mouse(e);
+    }    
+   };
+
+   demo.set_msg = function(i) {
+    for (j = 0; j < 3; j++) {
+     this.msgs[j].style.display = (j == i) ? 'block' : 'none';
+    }
+   }
+   
+   demo.handle_mouse = function(e) {
+    var p = this.main_svg.createSVGPoint();
+    
+    p.x = e.clientX;
+    p.y = e.clientY;
+    q = p.matrixTransform(this.main_svg.getScreenCTM().inverse());
+    
+    x0 = q.x - 250;
+    y0 = q.y - 250;
+    x1 = q.x - 750;
+    y1 = q.y - 250;
+    r0 = Math.sqrt(x0 * x0 + y0 * y0);
+    r1 = Math.sqrt(x1 * x1 + y1 * y1);
+
+    if (r0 < 200) {
+     this.marker.setAttribute('cx',q.x);
+     this.marker.setAttribute('cy',q.y);
+     this.marker.setAttribute('r',Math.min(50,200-r0));
+     this.marker.setAttribute('fill','#C8C8FF');
+     this.marker.setAttribute('visibility','visible');
+     this.set_msg(0);
+    } else if (r1 < 200) {
+     if (r1 < 195) {
+      this.marker.setAttribute('cx',q.x);
+      this.marker.setAttribute('cy',q.y);
+      this.marker.setAttribute('r',Math.min(50,200-r1));
+      this.marker.setAttribute('fill','#C8C8FF');
+      this.marker.setAttribute('visibility','visible');
+      this.set_msg(1);
+     } else {
+      this.marker.setAttribute('cx',q.x);
+      this.marker.setAttribute('cy',q.y);
+      this.marker.setAttribute('r',10);
+      this.marker.setAttribute('fill','#FF0000');
+      this.marker.setAttribute('visibility','visible');
+      this.set_msg(2);
+     }
+    } else {
+     this.marker.setAttribute('visibility','hidden');
+     this.set_msg(3);
+    }
+   }
+   
+   
+  </script>
+ </head>
+ <body onload="demo.init()">
+  <div id="control_div" style="position:absolute; left:10px; top:10px;">
+   <div class="control" style="width: 150px;" id="index" onclick="location='index.php'">Index</div>
+  </div>
+  <div id="frame>"
+   <div style="width: 1000px; margin: 0 auto;">
+    <svg id="main_svg" width="1000" height="500">
+     <defs>
+      <radialGradient id="grad0" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+       <stop offset="  0%" style="stop-color:rgb(200,255,200);stop-opacity:1"/>
+       <stop offset=" 95%" style="stop-color:rgb(200,255,200);stop-opacity:1"/>
+       <stop offset="100%" style="stop-color:rgb(255,255,255);stop-opacity:1"/>
+      </radialGradient>
+     </defs>
+     <text x="50" y="90" font-size="24" font-family="MathJax_Math-italic">A</text>
+     <text x="900" y="90" font-size="24" font-family="MathJax_Math-italic">B</text>
+     <circle id="left_disk"  cx="250" cy="250" r="210" fill="url(#grad0)"/>
+     <circle id="right_disk" cx="750" cy="250" r="200" fill="#C8FFC8"/>
+     <circle id="right_bdy"  cx="750" cy="250" r="200" fill="none" stroke="#60DD60"/>
+     <circle id="marker" cx="0" cy="0" r="20" fill="#C8C8FF" visibility="hidden"/>
+    </svg>
+   </div>
+   <div id="msg" style="width: 700px; margin: 0 auto;">
+    <div id="msg0" style="display : none">
+     The set $A$ is open.  Any point in $A$ can be surrounded by a disc that is contained wholly in $A$.
+    </div> 
+    <div id="msg1" style="display : none">
+     Any point in the interior of $B$ can be surrounded by a disc that is contained wholly in $B$.  However, this does not work for points on the edge of $B$, so $B$ is not open.
+    </div> 
+    <div id="msg2" style="display : none">
+     Here we have a point on the edge of $B$.  No disk centred there is wholly contained in $B$.
+    </div> 
+   </div>
+  </div>
+ </body>
+</html>

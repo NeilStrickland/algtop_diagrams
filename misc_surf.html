@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+ <head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Surfaces</title>
+
+  <style type="text/css" media="screen">
+   @import url(algtop_demo.css);
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js"> 
+   MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX","output/HTML-CSS"],
+    tex2jax: {inlineMath: [["$","$"]]}
+   });
+  </script> 
+  <script src="https://preview.babylonjs.com/babylon.js"></script>
+  <script src="algtop.js"></script>
+  <script src="json/boys_complex_alt.js"></script>
+
+  <style>
+   html, body {
+       width: 100%;
+       height: 100%;
+       margin: 0;
+       padding: 0;
+       font-family: arial, verdana;
+       background: white;
+   }
+   
+   .canvas {
+       width: 400;
+       height: 400;
+       touch-action: none;
+   }
+
+   div.surface {
+       text-align: center;
+       display : inline-block;
+       border : 1px solid black;
+   }
+   
+  </style>
+ </head>
+ <body>
+  <div id="control_div" style="position:absolute; left:10px; top:10px;">
+   <div class="control" style="width: 150px;" id="index" onclick="location='index.php'">Index</div>
+  </div>
+  <div style="max-width:1300px; padding-top:50px;" id="container"></div>
+<script>
+
+  var demo = {
+  
+  };
+
+  demo.init = function () {
+   var me = this;
+
+   surfaces0 = [
+    ['cylinder' , 'Cylinder'],
+    ['sphere'   , 'Sphere'],
+    ['torus'    , 'Torus'],
+    ['mobius'   , 'Möbius strip'],
+    ['klein'   ,  'Klein bottle'],
+    ['boys'     , 'Boys surface']
+   ];
+
+   this.container = document.getElementById('container');
+   this.frames = [];
+
+   console.log(window);
+   
+   for (i in surfaces0) {
+    var f = {};
+    this.frames.push(f);
+    var n = surfaces0[i][0];
+    f.name = n;
+    f.title = surfaces0[i][1];
+    f.div = document.createElement('div');
+    f.div.className = 'surface';
+    f.canvas = document.createElement('canvas');
+    f.canvas.width  = 400;
+    f.canvas.height = 400;
+    f.div.appendChild(f.canvas);
+    f.title_div = document.createElement('div');
+    f.title_div.innerHTML = f.title;
+    f.div.appendChild(f.title_div);
+    this.container.appendChild(f.div);
+    
+    f.engine =
+     new BABYLON.Engine(f.canvas, true, { preserveDrawingBuffer: true, stencil: true });
+    f.scene = algtop.basic_scene(f.engine,f.canvas);
+
+    if (n == 'boys') {
+     f.mesh = new BABYLON.Mesh("boys", f.scene);
+     var vertexData = new BABYLON.VertexData();
+     vertexData.positions = algtop.flat(object_data.positions);
+     vertexData.normals   = algtop.flat(object_data.normals);
+     vertexData.indices   = algtop.flat(object_data.indices);
+     vertexData.applyToMesh(f.mesh);
+     c = algtop.surface.colour;
+     
+     algtop.set_colour(f.mesh,c.r,c.g,c.b);
+    } else {
+     f.surface = Object.create(algtop[n]);
+     f.surface.make_mesh(f.scene);
+    }
+    
+    this.set_frame_callbacks(f);
+   };
+  };
+  
+  demo.set_frame_callbacks = function(f) {
+   f.engine.runRenderLoop(function () {
+    if (f.scene) {
+     f.scene.render();
+    }});
+   
+   window.addEventListener("resize", function () {
+    me.engine.resize();
+   });
+  };
+
+  demo.init();
+ </script>
+</body>
+</html>

@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+ <head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+  <title>Simplices</title>
+
+  <script src="https://preview.babylonjs.com/babylon.js"></script>
+
+  <style>
+   html, body {
+       width: 100%;
+       height: 100%;
+       margin: 0;
+       padding: 0;
+   }
+   
+   canvas {
+       width: 100%;
+       height: 100%;
+       touch-action: none;
+   }
+
+  </style>
+ </head>
+ <body>
+  <canvas id="simplex_canvas"></canvas>
+  <script>
+   var canvas = document.getElementById("simplex_canvas");
+   var engine = new BABYLON.Engine(canvas, true, { preserveDrawingBuffer: true, stencil: true });
+   var scene = new BABYLON.Scene(engine);
+    
+   var camera = new BABYLON.ArcRotateCamera("camera1",  0, 0, 0, new BABYLON.Vector3(0, 0, 0), scene);
+   camera.setPosition(new BABYLON.Vector3(0, 0, 12));
+   camera.attachControl(canvas, true);
+
+   var light0 = new BABYLON.DirectionalLight("light0", new BABYLON.Vector3(0, 0, 1), scene);
+   var light1 = new BABYLON.DirectionalLight("light1", new BABYLON.Vector3(0.2,0.2,-1), scene);
+   var light2 = new BABYLON.HemisphericLight("sun", new BABYLON.Vector3(0,1,0), scene);
+
+   var red = new BABYLON.Color4(1,0,0,1);
+   
+   x_axis = BABYLON.MeshBuilder.CreateLines("x_axis", {points : [
+    new BABYLON.Vector3(-0.1,0,0),
+    new BABYLON.Vector3( 1.1,0,0)
+   ], colors : [red,red]},scene);
+
+   y_axis = BABYLON.MeshBuilder.CreateLines("y_axis", {points : [
+    new BABYLON.Vector3(0,-0.1,0),
+    new BABYLON.Vector3(0, 1.1,0)
+   ]},scene);
+   
+   z_axis = BABYLON.MeshBuilder.CreateLines("z_axis", {points : [
+    new BABYLON.Vector3(0,0,-0.1),
+    new BABYLON.Vector3(0,0, 1.1)
+   ]},scene);
+
+   engine.runRenderLoop(function () {
+    if (scene) {
+     scene.render();
+    }});
+   
+   window.addEventListener("resize", function () {
+    engine.resize();
+   });
+  
+ </script>
+</body>
+</html>

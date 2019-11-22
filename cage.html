@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+ <head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Cage</title>
+  <style type="text/css" media="screen">
+   @import url(algtop_demo.css);
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js"> 
+   MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX","output/HTML-CSS"],
+    tex2jax: {inlineMath: [["$","$"]]}
+   });
+  </script> 
+  <script src="https://preview.babylonjs.com/babylon.js"></script>
+  <script src="https://preview.babylonjs.com/gui/babylon.gui.min.js"></script>
+  <script src="algtop.js"></script>
+
+  <style>
+   html, body {
+       width: 100%;
+       margin: 0;
+       padding: 0;
+   }
+   
+   .canvas {
+       width: 600;
+       height: 600;
+       touch-action: none;
+   }
+  </style>
+ </head>
+ <body>
+  <div id="control_div" style="position:absolute; left:50px; top:50px;">
+   <div class="control" style="width: 150px;" id="index" onclick="location='index.php'">Index</div>
+  </div>
+   <div id="div2d" style="display: inline-block; width: 600px; text-align: center;">
+    <svg width="600" height="600" id="cage_svg"></svg><br/>
+    This is a flattened out version of the right hand picture.
+    Here we see two holes, $a$ and $b$.
+   </div>
+   <div id="div3d" style="display: inline-block; width: 600px; text-align: center;">
+    <canvas width="600" height="600" id="cage_canvas"></canvas><br/>
+    Here we see three holes, $a$, $b$ and $c$.  But in the group $H_1(X)$
+    we have $a+b+c=0$, so $c=-a-b$.
+   </div>
+ <script>
+  var demo = {
+   
+  };
+
+  demo.init = function () {
+   var me = this;
+
+   this.div2d  = document.getElementById('div2d');
+   this.div3d  = document.getElementById('div3d');
+   this.svg    = document.getElementById('cage_svg');
+   this.canvas = document.getElementById('cage_canvas');
+
+   this.size = 600;
+   
+   if (! window.matchMedia( "(min-width: 600px)" ).matches) {
+    this.size = 300;
+   }
+   
+   this.canvas.width  = this.size;
+   this.canvas.height = this.size;
+   this.svg.setAttribute('width',this.size);
+   this.svg.setAttribute('height',this.size);
+   this.div2d.style.width = this.size + 'px';
+   this.div3d.style.width = this.size + 'px';
+
+
+   this.engine =
+    new BABYLON.Engine(this.canvas, true, { preserveDrawingBuffer: true, stencil: true });
+   
+   this.scene = algtop.basic_scene(this.engine,this.canvas);
+
+   this.curves = [];
+   this.sectors = [];
+   this.labels = [];
+   
+   for (i = 0; i < 3; i++) {
+    this.add_curve(i);
+   }
+
+   this.labels.push(algtop.bab.label([ 1.5, 0.0,-2.6],"a",this.scene));
+   this.labels.push(algtop.bab.label([ 1.5, 0.0, 2.6],"b",this.scene));
+   this.labels.push(algtop.bab.label([-3.0, 0.0, 0.0],"c",this.scene));
+   
+   var s = this.size / 6;
+   this.svg.appendChild(algtop.svg.circle(3*s,3*s,2*s,'blue',3));
+   this.svg.appendChild(algtop.svg.vline(3*s,s,5*s,'blue',3));
+
+   this.svg.appendChild(algtop.svg.text('a',2*s,3*s));
+   this.svg.appendChild(algtop.svg.text('b',4*s,3*s));
+   
+   this.engine.runRenderLoop(function () {
+    if (me.scene) {
+     me.orient_labels();
+     me.scene.render();
+    }});
+   
+   window.addEventListener("resize", function () {
+    me.engine.resize();
+   });
+  };
+
+  demo.add_curve = function(i) {
+   var c,s;
+   
+   c = Object.create(algtop.thick_curve);
+   c.colour = new BABYLON.Color3(0,0,1);
+   c.embedding = function(t) {
+    return [
+            3 * Math.sin(Math.PI*t) * Math.cos(2 * Math.PI / 3 * i),
+            3 * Math.cos(Math.PI*t),
+            3 * Math.sin(Math.PI*t) * Math.sin(2 * Math.PI / 3 * i)
+	   ];
+   };
+   this.curves.push(c);
+   c.make_mesh(this.scene);
+
+   s = Object.create(algtop.surface);
+   s.normal = function(t,u) {
+    return [
+     Math.sin(Math.PI*t) * Math.cos(2 * Math.PI / 3 * (i + u)),
+     Math.cos(Math.PI*t),
+     Math.sin(Math.PI*t) * Math.sin(2 * Math.PI / 3 * (i + u))
+    ];
+   };
+
+   s.embedding = function(t,u) {
+    var n = this.normal(t,u);
+    return [3 * n[0], 3 * n[1], 3 * n[2]];
+   };
+
+   s.make_mesh(this.scene);
+
+   m = new BABYLON.StandardMaterial("mat", this.scene);
+   m.alpha = 0.7;
+   m.backFaceCulling = false;
+   if (i == 0) {
+    m.diffuseColor  = new BABYLON.Color3(1.0,0.6,0.0);
+   } else if (i == 1) {
+    m.diffuseColor  = new BABYLON.Color3(0.2,0.8,0.2);
+   } else {
+    m.diffuseColor  = new BABYLON.Color3(0.28,0.82,0.8);
+   }
+
+   s.mesh.material = m;
+  }
+  
+  demo.orient_labels = function() {
+   for (i in this.labels) {
+    var x = this.labels[i];
+    var n = x.label_plane.position.subtract(this.scene.camera.position);
+    x.source_plane = new BABYLON.Plane(-n.x,-n.y,-n.z,0);
+    x.source_plane.normalize();
+    x.label_plane.setDirection(x.source_plane.normal.scale(-1));     
+   }
+  }
+
+  demo.init();
+ </script>
+</body>
+</html>

@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html>
+ <head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Annulus</title>
+  <style type="text/css" media="screen">
+   @import url(algtop_demo.css);
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js"> 
+   MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX","output/HTML-CSS"],
+    tex2jax: {inlineMath: [["$","$"]]}
+   });
+  </script> 
+  <script src="https://preview.babylonjs.com/babylon.js"></script>
+  <script src="algtop.js"></script>
+  <style>
+   html, body {
+       overflow: hidden;
+       width: 100%;
+       height: 100%;
+       margin: 0;
+       padding: 0;
+   }
+   
+   canvas {
+       width: 100%;
+       height: 600px;
+       touch-action: none;
+   }
+  </style>
+ </head>
+ <body>
+  <div style="text-align:center">
+   <div id="control_div" style="position:absolute; left:50px; top:50px;">
+    <div class="control" style="width: 150px;" id="index" onclick="location='index.php'">Index</div>
+   </div>
+   <canvas id="main_canvas"></canvas>
+   <div id="slidecontainer" style="width: 800px; margin: 0 auto;">
+    <input type="range" min="0" max="100" value="0" class="slider" id="stage_slider">
+   </div>
+   <br/><br/>
+   <div id="text" style="width: 800px; margin: 0 auto; text-align:left">
+    This illustrates the fact that the cylinder $C$ is homeomorphic to
+    the annulus $A$, where
+    \begin{align*}
+     C &= \{(x,y,z)\in\mathbb{R}^3\;|\;x^2+y^2=1,\quad -1\leq z\leq 1\} \\
+     A &= \{(x,y)\in\mathbb{R}^2 \;|\; \tfrac{1}{2} \leq
+              \sqrt{x^2+y^2} \leq \tfrac{3}{2} \}
+    \end{align*}
+    A homeomorphism $f\colon C\to A$ is given by
+    $$ f(x,y,z) = ((1+z/2)x,\;(1+z/2)y). $$
+   </div>
+  </div>
+ <script>
+
+  var demo = {};
+
+  demo.init = function() {
+   var tt,t,k,col,mat,v,i,p,cols,me;
+   
+   this.slider = document.getElementById("stage_slider");
+   this.canvas = document.getElementById("main_canvas");
+   this.engine =
+     new BABYLON.Engine(this.canvas, true, { preserveDrawingBuffer: true, stencil: true });
+
+   this.scene = algtop.basic_scene(this.engine,this.canvas);
+   this.scene.camera.radius = 6;
+   
+   var S = Object.create(algtop.surface);
+   this.S = S;
+   
+   S.s = 0;
+   S.e = (i == 0) ? 1 : -1;
+
+   S.embedding = function(t,u) {
+    var s = this.s;
+    var ct = Math.cos(2 * Math.PI * t);
+    var st = Math.sin(2 * Math.PI * t);
+    var cs = Math.cos(Math.PI * s / 2);
+    var ss = Math.sin(Math.PI * s / 2);
+    var x = [ct*(1+(u-1/2)*ss), cs*(3*u-3/2), st*(1+(u-1/2)*ss)];
+    return x;
+   }
+   
+   S.normal = function(t,u) {
+    var s = this.s;
+    var ct = Math.cos(2 * Math.PI * t);
+    var st = Math.sin(2 * Math.PI * t);
+    var cs = Math.cos(Math.PI * s / 2);
+    var ss = Math.sin(Math.PI * s / 2);
+
+    var n = [3*cs*ct+3*cs*ct*ss*u-(3/2*cs)*ct*ss,
+	     cs^2*u-(1/2)*cs^2-ss-u+1/2,
+	     3*cs*st+3*cs*ss*st*u-(3/2*cs)*ss*st];
+    
+    var r = this.e * Math.sqrt(n[0] * n[0] + n[1] * n[1] + n[2] * n[2]);
+    n = [n[0] / r, n[1] / r, n[2] / r];
+    return n;
+   }
+
+   S.make_mesh(this.scene);
+   algtop.set_colour(S.mesh,0.5,0.5,1);
+        
+   var P = {};
+   this.P = P;
+   
+   P.positions = [];
+   P.n = 48;
+   for (j = 0; j <= P.n; j++) {
+    var x = algtop.bab.vect(S.embedding(j / P.n, 0.5));
+    P.positions.push(x);
+   }
+   P.cols = Array(P.positions.length).fill(new BABYLON.Color4(1,0,0,1));
+   P.mesh = BABYLON.MeshBuilder.CreateLines('',
+     {points : P.positions, colors : P.cols, alpha : 1, updatable : true}, this.scene);
+
+   this.plane = Object.create(algtop.surface);
+   this.plane.r = 3;
+   
+   this.plane.embedding = function(t,u) {
+    return [this.r * u * Math.cos(2 * Math.PI * t),
+	    -0.02,
+	    this.r * u * Math.sin(2 * Math.PI * t)];
+   }
+   
+   this.plane.normal = function(t,u) {
+    return [0,1,0];
+   }
+
+   this.plane.make_mesh(this.scene);
+   var mat = new BABYLON.StandardMaterial("mat", this.scene);
+   mat.alpha = 0.7;
+   mat.backFaceCulling = false;
+   mat.diffuseColor = new BABYLON.Color3(0.3,0.3,0.3);
+   this.plane.mesh.material = mat;
+
+   me = this;
+   
+   this.engine.runRenderLoop(function () {
+    if (me.scene) {
+     me.scene.render();
+    }
+   });
+
+   window.addEventListener("resize", function () {
+    me.engine.resize();
+   });
+
+   this.slider.oninput = function() {
+    me.set_stage(this.value);
+   }
+  }
+
+  demo.set_stage = function(i) {
+   var x = 0;
+   var s = parseInt(i) * 0.01;
+
+   var S = this.S;
+   S.s = s;
+   var f = function(t,u) { return S.embedding(t,u); };
+   var g = function(t,u) { return S.normal(t,u); };
+    
+   var G = algtop.make_grid_with_normal(S.n,S.m,f,g);
+   S.mesh.updateVerticesData(BABYLON.VertexBuffer.PositionKind, G.positions);
+   S.mesh.updateVerticesData(BABYLON.VertexBuffer.NormalKind, G.normals);
+
+  }
+  
+  demo.init();
+ </script>
+</body>
+</html>

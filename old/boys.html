@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+ <head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Boys surface</title>
+
+  <!-- Babylon.js -->
+  <script src="https://code.jquery.com/pep/0.4.2/pep.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.6.2/dat.gui.min.js"></script>
+  <script src="https://preview.babylonjs.com/ammo.js"></script>
+  <script src="https://preview.babylonjs.com/cannon.js"></script>
+  <script src="https://preview.babylonjs.com/Oimo.js"></script>
+  <script src="https://preview.babylonjs.com/gltf_validator.js"></script>
+  <script src="https://preview.babylonjs.com/earcut.min.js"></script>
+  <script src="https://preview.babylonjs.com/babylon.js"></script>
+  <script src="https://preview.babylonjs.com/inspector/babylon.inspector.bundle.js"></script>
+  <script src="https://preview.babylonjs.com/materialsLibrary/babylonjs.materials.min.js"></script>
+  <script src="https://preview.babylonjs.com/proceduralTexturesLibrary/babylonjs.proceduralTextures.min.js"></script>
+  <script src="https://preview.babylonjs.com/postProcessesLibrary/babylonjs.postProcess.min.js"></script>
+  <script src="https://preview.babylonjs.com/loaders/babylonjs.loaders.js"></script>
+  <script src="https://preview.babylonjs.com/serializers/babylonjs.serializers.min.js"></script>
+  <script src="https://preview.babylonjs.com/gui/babylon.gui.min.js"></script>
+  <script src="algtop.js"></script>
+  <script src="obj/boys_complex_alt.js"></script>
+  <style>
+   html, body {
+       overflow: hidden;
+       width: 100%;
+       height: 100%;
+       margin: 0;
+       padding: 0;
+   }
+   
+   #renderCanvas {
+       width: 100%;
+       height: 100%;
+       touch-action: none;
+   }
+  </style>
+ </head>
+<body>
+ <canvas id="renderCanvas"></canvas>
+ <script>
+  var canvas = document.getElementById("renderCanvas");
+
+  var createScene = function () {
+   var scene = new BABYLON.Scene(engine);
+   scene.clearColor = BABYLON.Color3.Black();
+   
+   var light0 = new BABYLON.DirectionalLight("light0", new BABYLON.Vector3(0, 0, 1), scene);
+   var light1 = new BABYLON.DirectionalLight("light1", new BABYLON.Vector3(0.2,0.2,-1), scene);
+   var light2 = new BABYLON.HemisphericLight("sun", new BABYLON.Vector3(0,1,0), scene);
+
+   var camera = new BABYLON.ArcRotateCamera("camera1",  0, 0, 0, new BABYLON.Vector3(0, 0, 0), scene);
+   camera.setPosition(new BABYLON.Vector3(0, 0, 12));
+   camera.attachControl(canvas, true);
+        	  
+   //Create a custom mesh  
+   var customMesh = new BABYLON.Mesh("custom", scene);
+        	
+   var vertexData = new BABYLON.VertexData();
+   // BABYLON.VertexData.ComputeNormals(positions, indices, normals);
+        
+   //Assign positions, indices and normals to vertexData
+   vertexData.positions = algtop.flat(object_data.positions);
+   vertexData.normals   = algtop.flat(object_data.normals);
+   vertexData.indices   = algtop.flat(object_data.indices);
+   
+   //Apply vertexData to custom mesh
+   vertexData.applyToMesh(customMesh);
+
+   var mat = new BABYLON.StandardMaterial("mat", scene);
+   mat.backFaceCulling = false;
+   mat.diffuseColor  = new BABYLON.Color3(0.30, 0.30, 0.60);
+   customMesh.material = mat;
+
+   return scene;
+  };
+        
+  var engine = new BABYLON.Engine(canvas, true, { preserveDrawingBuffer: true, stencil: true });
+  var scene = createScene();
+  
+  engine.runRenderLoop(function () {
+   if (scene) {
+    scene.render();
+   }
+  });
+
+  // Resize
+  window.addEventListener("resize", function () {
+   engine.resize();
+  });
+ </script>
+</body>
+</html>

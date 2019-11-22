@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html>
+ <head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Simplices</title>
+  <style type="text/css" media="screen">
+   @import url(algtop_demo.css);
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js"> 
+   MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX","output/HTML-CSS"],
+    tex2jax: {inlineMath: [["$","$"]]}
+   });
+  </script> 
+  <script src="https://preview.babylonjs.com/babylon.js"></script>
+  <script src="algtop.js"></script>
+
+  <style>
+   html, body {
+       width: 100%;
+       margin: 0;
+       padding: 0;
+       font-family: arial, verdana;
+       background: white;
+   }
+   
+   .canvas {
+       width: 400;
+       height: 400;
+       touch-action: none;
+   }
+
+   div.simplex {
+       text-align: center;
+       display : inline-block;
+       border : 1px solid black;
+   }
+
+  </style>
+ </head>
+ <body>
+  <div id="control_div" style="position:absolute; left:10px; top:10px;">
+   <div class="control" style="width: 150px;" id="index" onclick="location='index.php'">Index</div>
+  </div>
+  <div id="container" style="padding-top:50px;"></div>
+  <br/><br/>
+  <div id="text" style="width: 800px; margin: 0 auto; text-align:left">
+   The $n$-simplex is defined to be
+   $$ \Delta_n = \{x\in\mathbb{R}^{n+1} : x_i \geq 0 \text{ for all } i, \quad
+                    \sum_i x_i = 1 \}
+   $$
+   This contains the basis vectors $e_0,\dotsc,e_n$, which are shown
+   here as red spheres.
+   <ul>
+    <li>$\Delta_0$ is just the single point $e_0$</li>
+    <li>$\Delta_1$ is the line segment joining $e_0$ to $e_1$</li>
+    <li>$\Delta_2$ is the triangle with vertices $e_0$, $e_1$ and $e_2$</li>
+    <li>$\Delta_3$ is the tetrahedron with vertices $e_0$, $e_1$, $e_2$ and $e_3$</li>    
+   </ul>
+  </div>
+ <script>
+  var demo = {
+  
+  };
+
+  demo.init = function () {
+   var me, e, i, f;
+   
+   me = this;
+
+   this.frames = [];
+
+   v = [
+    new BABYLON.Vector3(1,0,0),
+    new BABYLON.Vector3(0,0,1),
+    new BABYLON.Vector3(0,1,0)
+   ];
+
+   this.container = document.getElementById('container');
+   
+   for (i = 0; i < 4; i++) {
+    var f = {};
+    this.frames.push(f);
+    f.name = '' + i + '-simplex';
+    f.div = document.createElement('div');
+    f.div.className = 'simplex';
+    f.canvas = document.createElement('canvas');
+    f.canvas.width  = 400;
+    f.canvas.height = 400;
+    f.div.appendChild(f.canvas);
+    f.title_div = document.createElement('div');
+    f.title_div.innerHTML = f.name;
+    f.div.appendChild(f.title_div);
+    this.container.appendChild(f.div);
+
+    f.engine =
+     new BABYLON.Engine(f.canvas, true, { preserveDrawingBuffer: true, stencil: true });
+    f.scene = algtop.basic_scene(f.engine,f.canvas);
+    f.scene.camera.setPosition(new BABYLON.Vector3(1,2,3));
+    
+    var black = new BABYLON.Color4(0,0,0,1);
+    var blue  = new BABYLON.Color4(0,0,1,1);
+
+    if (i < 3) {
+     f.x_axis = algtop.bab.line([-0.1,0,0],[1.1,0,0],[0,0,0],f.scene);
+     f.y_axis = algtop.bab.line([0,-0.1,0],[0,1.1,0],[0,0,0],f.scene);
+     f.z_axis = algtop.bab.line([0,0,-0.1],[0,0,1.1],[0,0,0],f.scene);
+
+     f.v = [];
+     for (j = 0; j <= i; j++) {
+      var p = algtop.bab.point(v[j],[1,0,0],0.05,f.scene);
+      f.v.push(p);
+     }
+
+     f.e = [];
+     if ( i >= 1) {
+      f.e.push(algtop.bab.line(v[0],v[1],[0,0,1],f.scene));
+     }
+
+     if (i >= 2) {
+      f.e.push(algtop.bab.line(v[0],v[2],[0,0,1],f.scene));
+      f.e.push(algtop.bab.line(v[1],v[2],[0,0,1],f.scene));
+     }
+    }
+
+    if (i == 2) {
+     f.f = [algtop.bab.triangle(v[0],v[1],v[2],[0.7,1,0.7],f.scene)];
+    }
+
+    if (i == 3) {
+     var w = [
+      algtop.simplex3_embedding([1,0,0,0]),
+      algtop.simplex3_embedding([0,1,0,0]),
+      algtop.simplex3_embedding([0,0,1,0]),
+      algtop.simplex3_embedding([0,0,0,1])
+     ];
+
+     f.f = [];
+
+     for (j = 0; j <= 3; j++) {
+      for (k = j + 1; k <= 3; k++) {
+       for (l = k + 1; l <= 3; l++) {
+	f.f.push(algtop.bab.triangle(w[j],w[k],w[l],[0.7,1,0.7],f.scene));
+       }
+      }
+     }
+
+     f.e = [];
+     for (j = 0; j <= 3; j++) {
+      for (k = j + 1; k <= 3; k++) {
+       f.e.push(algtop.bab.line(w[j],w[k],[0,0,1],f.scene));
+      }
+     }
+
+     f.v = [];
+     for (j = 0; j <= 3; j++) {       
+      f.v.push(algtop.bab.point(w[j],[1,0,0],0.05, f.scene));
+     }
+    }
+
+    this.set_frame_callbacks(f);
+   };
+  };
+  
+  demo.set_frame_callbacks = function(f) {
+   var me = this;
+   
+   f.engine.runRenderLoop(function () {
+    if (f.scene) {
+     f.scene.render();
+    }});
+   
+   window.addEventListener("resize", function () {
+    f.engine.resize();
+   });
+  };
+
+  demo.init();
+ </script>
+</body>
+</html>

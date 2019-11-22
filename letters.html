@@ -1,0 +1,71 @@
+<html>
+ <head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Letters</title>
+  <style type="text/css" media="screen">
+   @import url(algtop_demo.css);
+  </style>
+  <script src="https://preview.babylonjs.com/babylon.js"></script>
+  <script src="algtop.js"></script>
+  <script src="letters.js"></script>
+  <script>
+   var demo = {};
+   
+   demo.init = function() {
+    var i,c,x,g,u,v;
+
+    var me = this;
+    
+    this.main_svg = document.getElementById('main_svg');
+    
+    for (i = 0; i < 24; i++) {
+     c = String.fromCharCode(65 + i);
+     x = algtop.letters[c];
+     g = x.create_svg();
+     u = 80 + 120 * (i % 8);
+     v = 80 + 150 * Math.floor(i / 8);
+     g.setAttribute('transform','matrix(40,0,0,-40,' + u + ',' + v + ')');
+     this.main_svg.appendChild(g);
+    };
+
+    this.stage_slider = document.getElementById('stage_slider');
+
+    this.stage_slider.oninput = function() {
+     me.set_stage(this.value);
+    }
+   };
+
+   demo.set_stage = function(j) {
+    var i,c,x;
+    
+    for (i = 0; i < 24; i++) {
+     c = String.fromCharCode(65 + i);
+     x = algtop.letters[c];
+     x.set_stage(j);
+    }
+   }
+   
+   
+  </script>
+ </head>
+ <body onload="demo.init()">
+  <div id="control_div" style="position:absolute; left:10px; top:10px;">
+   <div class="control" style="width: 150px;" id="index" onclick="location='index.php'">Index</div>
+  </div>
+  <div id="frame">
+   <div style="width: 1000px; margin: 0 auto;">
+    <svg id="main_svg" width="1000" height="500">
+    </svg>
+   </div>
+   <div id="slidecontainer" style="width: 500px; margin: 0 auto;">
+    <input type="range" min="0" max="64" value="0" class="slider" id="stage_slider">
+   </div>
+   <br/><br/>
+   <div id="text" style="width: 800px; margin: 0 auto; text-align:left">
+    This shows how the letters of the alphabet can be straightened out
+    into simpler shapes, which makes it clear that many letters are
+    topologically equivalent to each other.
+   </div>
+  </div>
+ </body>
+</html>

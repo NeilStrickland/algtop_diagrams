@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+ <head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Two discs</title>
+  <style type="text/css" media="screen">
+   @import url(algtop_demo.css);
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js"> 
+   MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX","output/HTML-CSS"],
+    tex2jax: {inlineMath: [["$","$"]]}
+   });
+  </script> 
+  <script src="https://preview.babylonjs.com/babylon.js"></script>
+  <script src="algtop.js"></script>
+  <style>
+   html, body {
+       overflow: hidden;
+       width: 100%;
+       height: 100%;
+       margin: 0;
+       padding: 0;
+   }
+   
+   canvas {
+       width: 100%;
+       height: 600px;
+       touch-action: none;
+   }
+  </style>
+ </head>
+ <body>
+  <div id="control_div" style="position:absolute; left:10px; top:10px;">
+   <div class="control" style="width: 150px;" id="index" onclick="location='index.php'">Index</div>
+  </div>
+  <div style="text-align:center">
+   <canvas id="main_canvas"></canvas>
+   <div id="slidecontainer" style="width: 800px; margin: 0 auto;">
+    <input type="range" min="0" max="100" value="0" class="slider" id="stage_slider">
+   </div>
+   <br/><br/>
+   <div id="text" style="width: 800px; margin: 0 auto; text-align:left">
+    This illustrates how we can obtain $S^2$ by gluing two copies of
+    the disc $B^2$ along their boundaries.  In more detail, we can put
+    $$ X = \{(x,y,z)\in\mathbb{R}^3\;|\; x^2+y^2\leq 1 \text{ and } z=\pm 1\} $$
+    and define $f\colon X\to S^2$ by
+    $$ f(x,y,z) = (x,y,z\sqrt{1-x^2-y^2}) $$
+    This is saturated for an appropriate equivalence relation $E$ on
+    $X$, and the induced map $\overline{f}\colon X/E\to S^2$ is a
+    homeomorphism. 
+   </div>
+  </div>
+ <script>
+
+  var demo = {};
+
+  demo.init = function() {
+   var tt,t,k,col,mat,v,i,p,cols,me;
+   
+   this.slider = document.getElementById("stage_slider");
+   this.canvas = document.getElementById("main_canvas");
+   this.engine =
+     new BABYLON.Engine(this.canvas, true, { preserveDrawingBuffer: true, stencil: true });
+
+   this.scene = algtop.basic_scene(this.engine,this.canvas);
+   this.scene.camera.radius = 6;
+   
+   this.discs = [];
+   this.rims  = [];
+   
+   for (i = 0; i < 2; i++) {
+    var S = Object.create(algtop.surface);
+
+    S.s = 0;
+    S.e = (i == 0) ? 1 : -1;
+
+    S.embedding = function(t,u) {
+     var s = this.s;
+     var ct = Math.cos(2 * Math.PI * t);
+     var st = Math.sin(2 * Math.PI * t);
+     var x = [u * ct, this.e * (1 - s + s * Math.sqrt(1 - u * u)), u * st]; 
+
+     return x;
+    }
+   
+    S.normal = function(t,u) {
+     var s = this.s;
+     var e = this.e;
+     var ct = Math.cos(2 * Math.PI * t);
+     var st = Math.sin(2 * Math.PI * t);
+     
+     var n = [ct * u * s * e, Math.sqrt(1 - u*u), st * u * s * e];
+
+     var r = this.e * Math.sqrt(n[0] * n[0] + n[1] * n[1] + n[2] * n[2]);
+     n = [n[0] / r, n[1] / r, n[2] / r];
+     return n;
+    }
+
+    S.make_mesh(this.scene);
+    algtop.set_colour(S.mesh,0.5,0.5,1);
+        
+    this.discs.push(S);
+
+    var P = {};
+    P.positions = [];
+    P.n = 48;
+    P.e = S.e;
+    for (j = 0; j <= P.n; j++) {
+     P.positions.push(algtop.bab.vect(S.embedding(j / P.n, 1)));
+    }
+    P.cols = Array(P.positions.length).fill(new BABYLON.Color4(1,0,0,1));
+    P.mesh = BABYLON.MeshBuilder.CreateLines('rim' + i,
+     {points : P.positions, colors : P.cols, alpha : 1, updatable : true}, this.scene);
+
+    this.rims.push(P);
+   }
+
+   me = this;
+   
+   this.engine.runRenderLoop(function () {
+    if (me.scene) {
+     me.scene.render();
+    }
+   });
+
+   window.addEventListener("resize", function () {
+    me.engine.resize();
+   });
+
+   this.slider.oninput = function() {
+    me.set_stage(this.value);
+   }
+  }
+
+  demo.set_stage = function(i) {
+   var x = 0;
+   var s = parseInt(i) * 0.01;
+
+   for (j = 0; j < 2; j++) {
+    var S = this.discs[j];
+    S.s = s;
+    var f = function(t,u) { return S.embedding(t,u); };
+    var g = function(t,u) { return S.normal(t,u); };
+    
+    var G = algtop.make_grid_with_normal(S.n,S.m,f,g);
+    S.mesh.updateVerticesData(BABYLON.VertexBuffer.PositionKind, G.positions);
+    S.mesh.updateVerticesData(BABYLON.VertexBuffer.NormalKind, G.normals);
+
+    var P = this.rims[j];
+    pp0 = P.positions;
+    P.positions = [];
+    for (i in pp0) {
+     p0 = pp0[i];
+     P.positions.push(algtop.bab.vect([p0.x,(1 - s) * P.e,p0.z]));
+     P.mesh = BABYLON.MeshBuilder.CreateLines(null,
+      {points : P.positions, colors : P.cols, instance : P.mesh}, this.scene);
+    }
+   }
+  }
+  
+  demo.init();
+ </script>
+</body>
+</html>

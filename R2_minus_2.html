@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+ <head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>R2\2 points</title>
+  <style type="text/css" media="screen">
+   @import url(algtop_demo.css);
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js"> 
+   MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX","output/HTML-CSS"],
+    tex2jax: {inlineMath: [["$","$"]]}
+   });
+  </script> 
+  <script src="https://preview.babylonjs.com/babylon.js"></script>
+  <script src="algtop.js"></script>
+  <style>
+   html, body {
+       overflow: hidden;
+       width: 100%;
+       height: 100%;
+       margin: 0;
+       padding: 0;
+   }
+   
+   canvas {
+       width: 100%;
+       height: 600px;
+       touch-action: none;
+   }
+  </style>
+ </head>
+ <body>
+  <div style="text-align:center">
+   <div id="control_div" style="position:absolute; left:50px; top:50px;">
+    <div class="control" style="width: 150px;" id="index" onclick="location='index.php'">Index</div>
+    <div class="control" style="width: 150px;" id="R2_minus_0">$\mathbb{R}^2$</div>
+    <div class="control" style="width: 150px;" id="R2_minus_1">$\mathbb{R}^2\setminus\text{point}$</div>
+    <div class="control_selected" style="width: 150px;" id="R2_minus_2">$\mathbb{R}^2\setminus(2 \text{ points})$</div>
+   </div>
+   <canvas id="main_canvas"></canvas>
+   <div id="slidecontainer" style="width: 800px; margin: 0 auto;">
+    <input type="range" min="0" max="100" value="0" class="slider" id="stage_slider">
+   </div>
+   <br/><br/>
+   <div id="text" style="width: 800px; margin: 0 auto; text-align:left">
+    This illustrates the fact that
+    $\mathbb{R}^2\setminus(2\text{ points })$ is homotopy equivalent
+    to the figure eight space $E=S^1\vee S^1$.
+   </div>
+  </div>
+ <script>
+
+  var demo = {};
+
+  demo.g = function(x,y) {
+   if (x == 0) { return [0,0,0]; }
+   var r = (x * x + y * y)/(2 * Math.abs(x));
+   var s = (x < 0) ? -1 : 1;
+   if (r <= 1) {
+    var u = Math.sqrt((x - s)*(x - s) + y*y);
+    return [y/u, 0, (x-s)/u + s];
+   } else {
+    return [y/r, 0, x/r];
+   }
+  }
+
+  demo.h = function(x,y) {
+   var u = this.g(x,y);
+   return [(1 - this.s) * y + this.s * u[0],
+	   0,
+	   (1 - this.s) * x + this.s * u[2]];
+  } 
+
+  demo.p = function(x) {
+   if (Math.abs(x) >= 2) {
+    return 0;
+   }
+   var s = (x < 0) ? -1 : 1;
+   return Math.sqrt(1 - (x - s) * (x - s));
+  }
+  
+  demo.init = function() {
+   var me,b,i,d;
+   
+   var me = this;
+
+   d = document.getElementById('R2_minus_0');
+   d.onclick = function() { window.location = 'R2_minus_0.html'; }
+   d = document.getElementById('R2_minus_1');
+   d.onclick = function() { window.location = 'R2_minus_1.html'; }
+
+   this.slider = document.getElementById("stage_slider");
+   this.canvas = document.getElementById("main_canvas");
+   this.engine =
+     new BABYLON.Engine(this.canvas, true, { preserveDrawingBuffer: true, stencil: true });
+
+   this.scene = algtop.basic_scene(this.engine,this.canvas);
+
+   this.r = 4;
+   this.blocks = [];
+   this.num_blocks = 4;
+   this.s = 0;
+
+   for (i = 0; i < this.num_blocks; i++) {
+    b = Object.create(algtop.surface);
+    b.n = 128;
+    b.normal = function(t,u) { return [0,1,0]; }
+    this.blocks.push(b);
+   }
+   
+   this.blocks[0].embedding = function(t,u) {
+    var x = (2 * t - 1) * me.r;
+    var y = me.r - u * (me.r - me.p(x));
+    return me.h(x,y);
+   }
+
+   this.blocks[1].embedding = function(t,u) {
+    var x = (2 * t - 1) * me.r;
+    var y = me.r - u * (me.r - me.p(x));
+    return me.h(x,-y);
+   }
+
+   this.blocks[2].embedding = function(t,u) {
+    var v = 0.94 * u + 0.06;
+    var x = 1 + v * Math.cos(2 * Math.PI * t);
+    var y = v * Math.sin(2 * Math.PI * t);
+    return me.h(x,y);
+   }
+
+   this.blocks[3].embedding = function(t,u) {
+    var v = 0.94 * u + 0.06;
+    var x = 1 + v * Math.cos(2 * Math.PI * t);
+    var y = v * Math.sin(2 * Math.PI * t);
+    return me.h(-x,y);
+   }
+
+   for (i = 0; i < this.num_blocks; i++)  {
+    this.blocks[i].make_mesh(this.scene);
+   }
+
+   this.rings = [];
+   for (i = 0; i < 2; i++) {
+    var r = Object.create(algtop.thin_circle);
+    r.c = [0,0,2*i-1];
+    r.u = [1,0,0];
+    r.v = [0,0,1];
+    r.make_mesh(this.scene);
+    this.rings.push(r);
+   }
+   
+   this.poles = [
+    algtop.bab.point([0,0, 1],[0,1,0],0.1,this.scene),
+    algtop.bab.point([0,0,-1],[0,1,0],0.1,this.scene),
+   ];
+   
+   this.engine.runRenderLoop(function () {
+    if (me.scene) {
+     me.scene.render();
+    }
+   });
+
+   window.addEventListener("resize", function () {
+    me.engine.resize();
+   });
+
+   this.slider.oninput = function() {
+    me.set_stage(this.value);
+   }
+  }
+
+  demo.set_stage = function(i) {
+   var j;
+   
+   this.s = parseInt(i) * 0.01;
+   for (j = 0; j < this.num_blocks; j++) {
+    this.blocks[j].update_mesh();
+   }
+  }
+  
+  demo.init();
+ </script>
+</body>
+</html>

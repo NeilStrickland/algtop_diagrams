@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+ <head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>M&ouml;bius strip</title>
+
+  <!-- Babylon.js -->
+  <script src="https://code.jquery.com/pep/0.4.2/pep.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.6.2/dat.gui.min.js"></script>
+  <script src="https://preview.babylonjs.com/ammo.js"></script>
+  <script src="https://preview.babylonjs.com/cannon.js"></script>
+  <script src="https://preview.babylonjs.com/Oimo.js"></script>
+  <script src="https://preview.babylonjs.com/gltf_validator.js"></script>
+  <script src="https://preview.babylonjs.com/earcut.min.js"></script>
+  <script src="https://preview.babylonjs.com/babylon.js"></script>
+  <script src="https://preview.babylonjs.com/inspector/babylon.inspector.bundle.js"></script>
+  <script src="https://preview.babylonjs.com/materialsLibrary/babylonjs.materials.min.js"></script>
+  <script src="https://preview.babylonjs.com/proceduralTexturesLibrary/babylonjs.proceduralTextures.min.js"></script>
+  <script src="https://preview.babylonjs.com/postProcessesLibrary/babylonjs.postProcess.min.js"></script>
+  <script src="https://preview.babylonjs.com/loaders/babylonjs.loaders.js"></script>
+  <script src="https://preview.babylonjs.com/serializers/babylonjs.serializers.min.js"></script>
+  <script src="https://preview.babylonjs.com/gui/babylon.gui.min.js"></script>
+  <script src="algtop.js"></script>
+  <style>
+   html, body {
+       overflow: hidden;
+       width: 100%;
+       height: 100%;
+       margin: 0;
+       padding: 0;
+   }
+   
+   #renderCanvas {
+       width: 100%;
+       height: 100%;
+       touch-action: none;
+   }
+  </style>
+ </head>
+<body>
+ <canvas id="renderCanvas"></canvas>
+ <script>
+  var canvas = document.getElementById("renderCanvas");
+
+  var make_mobius = function() {
+   var R,r,n,m, i, j, t, u, x, i1, j1, k0, k1, k2, k3, positions, indices;
+   R = 2;    // radius
+   r = 0.6;  // width
+   n = 128;
+   m = 32;
+   positions = [];
+   normals = [];
+   indices = [];
+
+   for (i = 0; i <= n; i++) {
+    for (j = 0; j <= m; j++) {
+     t = (i * 1.)/(2 * n);
+     u = 2 * (j * 1.)/m - 1;
+     x = algtop.mobius_embedding(R,r,t,u);
+     v = algtop.mobius_normal(R,r,t,u);
+     positions.push(x[0],x[1],x[2]);
+     normals.push(v[0],v[1],v[2]);
+     if (i < n && j < m) {
+      i1 = (i + 1);
+      j1 = (j + 1);
+      k0 = (m + 1) * i  + j;
+      k1 = (m + 1) * i1 + j;
+      k2 = (m + 1) * i  + j1;
+      k3 = (m + 1) * i1 + j1;
+      indices.push(k0,k1,k3,k0,k3,k2);
+     }
+    }
+   }
+
+   return [positions,indices,normals];
+  }
+
+  make_middle = function() {
+   var n,i,x,y,positions;
+   n = 48;
+   positions = [];
+   for (i = 0; i <= n; i++) {
+    x = algtop.mobius_embedding(2,0.6,(i * 1.)/(2*n),0);
+    y = new BABYLON.Vector3(x[0],x[1],x[2]);
+    positions.push(y);
+   }
+
+   return positions;
+  }
+
+  make_edge = function() {
+   var n,i,x,y,positions;
+   n = 128;
+   positions = [];
+   for (i = 0; i <= n; i++) {
+    x = algtop.mobius_embedding(2,0.6,(i * 1.)/n,1);
+    y = new BABYLON.Vector3(x[0],x[1],x[2]);
+    positions.push(y);
+   }
+
+   return positions;
+  }
+
+  var createScene = function () {
+   var scene = new BABYLON.Scene(engine);
+   scene.clearColor = BABYLON.Color3.Black();
+   
+   var light0 = new BABYLON.DirectionalLight("light0", new BABYLON.Vector3(0, 0, 1), scene);
+   var light1 = new BABYLON.DirectionalLight("light1", new BABYLON.Vector3(0.2,0.2,-1), scene);
+   var light2 = new BABYLON.HemisphericLight("sun", new BABYLON.Vector3(0,1,0), scene);
+
+   var camera = new BABYLON.ArcRotateCamera("camera1",  0, 0, 0, new BABYLON.Vector3(0, 0, 0), scene);
+   camera.setPosition(new BABYLON.Vector3(0, 0, 12));
+   camera.attachControl(canvas, true);
+        	  
+   //Create a custom mesh  
+   var customMesh = new BABYLON.Mesh("custom", scene);
+        	
+   var r = make_mobius();
+   var positions = r[0];
+   var indices = r[1];
+   var normals = r[2];
+        	
+   var vertexData = new BABYLON.VertexData();
+   // BABYLON.VertexData.ComputeNormals(positions, indices, normals);
+        
+   //Assign positions, indices and normals to vertexData
+   vertexData.positions = positions;
+   vertexData.indices = indices;
+   vertexData.normals = normals;
+   
+   //Apply vertexData to custom mesh
+   vertexData.applyToMesh(customMesh);
+
+   var mat = new BABYLON.StandardMaterial("mat", scene);
+   mat.backFaceCulling = false;
+   mat.diffuseColor  = new BABYLON.Color3(0.30, 0.30, 0.60);
+   customMesh.material = mat;
+
+   var positions = make_middle();
+   var red = new BABYLON.Color4(1,0,0,1);
+   var colors = Array(positions.length).fill(red);
+   var middle = BABYLON.MeshBuilder.CreateTube("middle", {path: positions, radius: 0.03}, scene);
+
+   var mat = new BABYLON.StandardMaterial("mat", scene);
+   mat.diffuseColor  = new BABYLON.Color3(1,0,0);
+   middle.material = mat;
+   
+   var positions = make_edge();
+   var blue = new BABYLON.Color4(0,0,1,1);
+   var colors = Array(positions.length).fill(blue);
+   var edge = BABYLON.MeshBuilder.CreateTube("edge", {path: positions, radius: 0.03}, scene);
+
+   var mat = new BABYLON.StandardMaterial("mat", scene);
+   mat.diffuseColor  = new BABYLON.Color3(0,0,1);
+   edge.material = mat;
+   
+   return scene;
+  };
+        
+  var engine = new BABYLON.Engine(canvas, true, { preserveDrawingBuffer: true, stencil: true });
+  var scene = createScene();
+  
+  engine.runRenderLoop(function () {
+   if (scene) {
+    scene.render();
+   }
+  });
+
+  // Resize
+  window.addEventListener("resize", function () {
+   engine.resize();
+  });
+ </script>
+</body>
+</html>

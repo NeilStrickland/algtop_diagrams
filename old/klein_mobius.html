@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+ <head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Klein bottle</title>
+
+  <!-- Babylon.js -->
+  <script src="https://code.jquery.com/pep/0.4.2/pep.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.6.2/dat.gui.min.js"></script>
+  <script src="https://preview.babylonjs.com/ammo.js"></script>
+  <script src="https://preview.babylonjs.com/cannon.js"></script>
+  <script src="https://preview.babylonjs.com/Oimo.js"></script>
+  <script src="https://preview.babylonjs.com/gltf_validator.js"></script>
+  <script src="https://preview.babylonjs.com/earcut.min.js"></script>
+  <script src="https://preview.babylonjs.com/babylon.js"></script>
+  <script src="https://preview.babylonjs.com/inspector/babylon.inspector.bundle.js"></script>
+  <script src="https://preview.babylonjs.com/materialsLibrary/babylonjs.materials.min.js"></script>
+  <script src="https://preview.babylonjs.com/proceduralTexturesLibrary/babylonjs.proceduralTextures.min.js"></script>
+  <script src="https://preview.babylonjs.com/postProcessesLibrary/babylonjs.postProcess.min.js"></script>
+  <script src="https://preview.babylonjs.com/loaders/babylonjs.loaders.js"></script>
+  <script src="https://preview.babylonjs.com/serializers/babylonjs.serializers.min.js"></script>
+  <script src="https://preview.babylonjs.com/gui/babylon.gui.min.js"></script>
+  <script src="algtop.js"></script>
+  <style>
+   html, body {
+       overflow: hidden;
+       width: 100%;
+       height: 100%;
+       margin: 0;
+       padding: 0;
+   }
+   
+   #renderCanvas {
+       width: 100%;
+       height: 100%;
+       touch-action: none;
+   }
+  </style>
+ </head>
+<body>
+ <canvas id="renderCanvas"></canvas>
+ <script>
+  var canvas = document.getElementById("renderCanvas");
+
+  var demo = {};
+
+  demo.init = function () {
+   var me = this;
+
+   this.engine =
+    new BABYLON.Engine(canvas, true, { preserveDrawingBuffer: true, stencil: true });
+
+   this.scene = algtop.basic_scene(this.engine);
+        	  
+   this.a = 0.4;
+   this.b = 0.6;
+   this.c = 0.3;
+   this.n = 128;
+   this.m = 32;
+
+   this.f = function(t,u) { return algtop.klein_embedding(me.a, me.b, me.c, t, u); }
+   this.f_a = function(t,u) { return me.f(t,t + 0.5*u); }
+   this.f_b = function(t,u) { return me.f(t,t - 0.5*u); }
+   
+   this.mobius_a = new BABYLON.Mesh("mobius_a", this.scene);
+   algtop.make_grid(this.n,this.m,me.f_a).applyToMesh(this.mobius_a);
+   algtop.set_colour(this.mobius_a,0.3,0.3,0.6);
+   
+   this.mobius_b = new BABYLON.Mesh("mobius_b", this.scene);
+   algtop.make_grid(this.n,this.m,me.f_b).applyToMesh(this.mobius_b);
+   algtop.set_colour(this.mobius_b,0.6,0.3,0.3);
+   
+   this.engine.runRenderLoop(function () {
+    if (me.scene) { me.scene.render(); }
+   });
+
+   window.addEventListener("resize", function () {
+    me.engine.resize();
+   });
+  };
+
+  demo.init();
+ </script>
+</body>
+</html>

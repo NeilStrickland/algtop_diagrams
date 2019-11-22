@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html>
+ <head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>The exponential covering</title>
+  <style type="text/css" media="screen">
+   @import url(algtop_demo.css);
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js"> 
+   MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX","output/HTML-CSS"],
+    tex2jax: {inlineMath: [["$","$"]]}
+   });
+  </script> 
+  <script src="https://preview.babylonjs.com/babylon.js"></script>
+  <script src="algtop.js"></script>
+  <style>
+   html, body {
+       overflow: hidden;
+       width: 100%;
+       height: 100%;
+       margin: 0;
+       padding: 0;
+   }
+   
+   canvas {
+       width: 600px;
+       height: 600px;
+       touch-action: none;
+   }
+  </style>
+ </head>
+ <body>
+  <div id="control_div" style="position:absolute; left:50px; top:50px;">
+   <div class="control" style="width: 150px;" id="index" onclick="location='index.php'">Index</div>
+  </div>
+  <div style="text-align:center">
+   <div>
+    <svg width="600" height="600" id="main_svg"></svg>
+    <canvas id="main_canvas"></canvas>
+   </div>
+   <br/><br/>
+   <div id="text" style="width: 800px; margin: 0 auto; text-align:left">
+    <div id="msg0" style="display:none">
+     We want to lift the blue curve in the annulus (shown on the left)
+     through the covering map from the spiral strip to the annulus.
+     First, we need to decide how to lift the initial point (shown in
+     black on the left).  All possible lifts are shown on the right.
+     We will use the initial lift shown by the larger blue marker.
+     <br/><br/>
+     (Use the mouse wheel or arrow keys to step through.)
+    </div>
+    <div id="msg1">
+     The solid blue part of the curve has been lifted already.  We now
+     want to lift the next short section, which is shown on the left
+     in red.  This is easy, because the short section is contained in
+     an open set over which the covering is trivial.  All possible
+     lifts are shown on the right in red.  Only one of them connects
+     with the lifting that we have done already.
+    </div>
+    <div id="msg2" style="display:none">
+     We extend our lift over the next section by using the unique
+     possible lift that matches up with what we have already done.
+    </div>
+    <div id="msg3" style="display:none">
+     We have now lifted the whole curve.
+    </div>
+   </div>
+  </div>
+ <script>
+
+  var demo = {};
+
+  demo.theta = function(t) { return -10 * t; }
+  demo.r = function(t) { return 1.3 + 0.5 * t; }
+  demo.xy = function(t) {
+   return [this.r(t) * Math.cos(this.theta(t)), this.r(t) * Math.sin(this.theta(t)) ]
+  }
+  
+  demo.init = function() {
+   var i,j,s,t;
+   
+   var me = this;
+   
+   this.svg = document.getElementById("main_svg");
+   this.svg.setAttribute('viewBox','-2.5 -2.5 5.0 5.0');
+
+   this.msgs = [];
+   for (i = 0; i < 4; i++) {
+    this.msgs.push(document.getElementById('msg' + i));
+   }
+   
+   this.annulus = {};
+   this.annulus.r = 1;
+   this.annulus.w = 1;
+   
+   this.annulus.big_disc     = algtop.svg.disc(0.0,0.0,this.annulus.r + this.annulus.w,'#8080FF');
+   this.annulus.small_disc   = algtop.svg.disc(0.0,0.0,this.annulus.r,'#FFFFFF');
+   var xy0 = this.xy(0);
+   var xy1 = this.xy(1);
+   this.annulus.start_marker = algtop.svg.disc(xy0[0],xy0[1],0.03,'#000000');
+   this.annulus.end_marker   = algtop.svg.disc(xy1[0],xy1[1],0.03,'#000000');
+   
+   this.svg.appendChild(this.annulus.big_disc);
+   this.svg.appendChild(this.annulus.small_disc);
+   this.svg.appendChild(this.annulus.start_marker);
+   this.svg.appendChild(this.annulus.end_marker);
+    
+   this.annulus.embedding = function(t,u) {
+    var t1 = 2 * Math.PI * t;
+    var r0 = this.r + u * this.w;
+    return [r0 * Math.cos(t1), r0 * Math.sin(t1)];
+   }
+
+   this.canvas = document.getElementById("main_canvas");
+   this.engine =
+     new BABYLON.Engine(this.canvas, true, { preserveDrawingBuffer: true, stencil: true });
+
+   this.scene = algtop.basic_scene(this.engine,this.canvas);
+
+   this.spiral = Object.create(algtop.surface);
+   this.spiral.n = 256;   
+   this.spiral.m = 256;
+   this.spiral.r = 1.5;
+   this.spiral.w = 1.5;
+   this.spiral.h = 0.8;
+   this.spiral.p = 6;
+   
+   this.spiral.embedding = function(t,u) {
+    var t0 = this.p * (t - 0.5);
+    var t1 = 2 * Math.PI * t0;
+    var r0 = this.r + u * this.w;
+    return [r0 * Math.sin(t1), - this.h * t0, r0 * Math.cos(t1)];
+   }
+   
+   this.spiral.curve_embedding = function(t,m) {
+    var u = me.r(t) - 1;
+    var v = (me.theta(t) / (2 * Math.PI) + 3 + m) / me.spiral.p;
+    return me.spiral.embedding(v,u);
+   }
+   
+   this.spiral.make_mesh(this.scene);
+   this.spiral.mesh.material.alpha = 0.5;
+
+   this.num_segments = 50;
+   this.points_per_segment = 50;
+   this.segments = [];
+
+   this.spiral.start_markers = [];
+   for (i = -3; i <= 3; i++) {
+    var x = this.spiral.curve_embedding(0,i);
+    var c = (i == 0) ? [0,0,1] : [1,0,0];
+    var d = (i == 0) ? 0.1 : 0.08;
+    var m = algtop.bab.point(x,c,d,this.scene);
+    m.i = i;
+    this.spiral.start_markers.push(m);
+   }
+   
+   this.seg3 = Object.create(algtop.thick_curve);
+   this.seg3.colour = new BABYLON.Color4(0,0,1,1);
+   this.seg3.t0 = 0;
+   this.seg3.t1 = 0;
+   this.seg3.m = 0;
+   this.seg3.embedding = function(s) {
+    return me.spiral.curve_embedding(this.t0 + s * (this.t1 - this.t0),this.m);
+   }
+
+   for (i = 0; i < this.num_segments; i++) {
+    s = {};
+    s.i = i;
+    s.t0 = i / this.num_segments;
+    s.t1 = (i + 1) / this.num_segments;
+    s.points = [];
+    for (j = 0; j <= this.points_per_segment; j++) {
+     t = s.t0 + j/this.points_per_segment * (s.t1 - s.t0);
+     s.points.push(this.xy(t));
+    }
+
+    s.svg = algtop.svg.lines(s.points,'#0000FF',0.03);
+    this.svg.appendChild(s.svg);
+
+    s.bab = Object.create(this.seg3);
+    s.bab.t0 = s.t0;
+    s.bab.t1 = s.t1;
+    s.bab.make_mesh(this.scene);
+    
+    this.segments.push(s);
+   }
+
+   this.lifts = [];
+   for (i = -3; i <= 3; i++) {
+    var l = Object.create(this.seg3);
+    l.colour = new BABYLON.Color4(1,0,0,1);
+    l.t0 = 0;
+    l.t1 = 1/this.num_segments;
+    l.m = i;
+    l.make_mesh(this.scene);
+
+    this.lifts.push(l);
+   }
+
+   this.s = 0;
+   this.set_stage(0);
+   
+   this.svg.onwheel = function(e) {
+    me.handle_wheel(e);
+   }
+
+   window.onkeydown = function(e) {
+    
+    if (e.key == 'ArrowRight' || e.key == 'ArrowDown') {
+     me.set_stage(me.s + 1);
+    } else if (e.key == 'ArrowLeft' || e.key == 'ArrowUp') {
+     me.set_stage(me.s - 1);
+    } else {
+     return(false);
+    }
+   }
+
+   this.engine.runRenderLoop(function () {
+    if (me.scene) {
+     me.scene.render();
+    }
+   });
+
+   window.addEventListener("resize", function () {
+    me.engine.resize();
+   });
+
+  }
+
+  demo.handle_wheel = function(e) {
+   var z = (e.deltaY > 0) ? 1 : -1;
+
+   this.set_stage(this.s + z);
+  }
+
+  demo.set_msg = function(i) {
+   for (j = 0; j < 4; j++) {
+    this.msgs[j].style.display = (j == i) ? 'block' : 'none';
+   }
+  }
+
+  demo.set_stage = function(i) {
+   this.s = Math.max(0,Math.min(i,2 * this.num_segments + 1));
+
+   if (this.s == 0) {
+    for (j = 0; j < this.num_segments; j++) {
+     var s = this.segments[j];
+     s.svg.setAttribute('opacity',0.1);
+     s.svg.setAttribute('stroke','#0000FF');
+     s.bab.mesh.material.alpha = 0;
+     s.bab.mesh.color = new BABYLON.Color4(0,0,1,1);
+    }
+    for (j in this.lifts) {
+     var l = this.lifts[j];
+     l.mesh.material.alpha = 0;
+    }
+
+    for (j in this.spiral.start_markers) {
+     var m = this.spiral.start_markers[j];
+     m.material.alpha = 1;
+    }
+
+    this.set_msg(0);
+    return;
+   }
+
+   if (this.s > 2 * this.num_segments) {
+    for (j = 0; j < this.num_segments; j++) {
+     var s = this.segments[j];
+     s.svg.setAttribute('opacity',1);
+     s.svg.setAttribute('stroke','#0000FF');
+     s.bab.mesh.material.alpha = 1;
+     s.bab.mesh.color = new BABYLON.Color4(0,0,1,1);
+    }
+    for (j in this.lifts) {
+     l = this.lifts[j];
+     l.mesh.material.alpha = 0;
+    }
+
+    for (j in this.spiral.start_markers) {
+     var m = this.spiral.start_markers[j];
+     m.material.alpha = (m.i == 0) ? 1 : 0;
+    }
+
+    this.set_msg(3);
+    return;
+   }
+   
+   i0 = Math.floor((i - 1)/ 2);
+   i1 = (i - 1) % 2;
+   
+   for (j = 0; j < this.num_segments; j++) {
+    var s = this.segments[j];
+    if (j < i0) {
+     s.svg.setAttribute('opacity',1);
+     s.svg.setAttribute('stroke','#0000FF');
+     s.bab.mesh.material.alpha = 1;
+     s.bab.mesh.color = new BABYLON.Color4(0,0,1,1);
+    } else if (j == i0) {
+     if (i1) {
+      s.svg.setAttribute('opacity',1);
+      s.svg.setAttribute('stroke','#0000FF');
+      s.bab.mesh.material.alpha = 1;
+      s.bab.mesh.color = new BABYLON.Color4(0,0,1,1);
+     } else {
+      s.svg.setAttribute('opacity',1);
+      s.svg.setAttribute('stroke','#FF0000');
+      s.bab.mesh.material.alpha = 1;
+      s.bab.mesh.color = new BABYLON.Color4(1,0,0,1);
+     }
+    } else {
+     s.svg.setAttribute('opacity',0.1);
+     s.svg.setAttribute('stroke','#0000FF');
+     s.bab.mesh.material.alpha = 0;
+     s.bab.mesh.color = new BABYLON.Color4(0,0,1,1);
+    }
+   }
+
+   for (j in this.lifts) {
+    var l = this.lifts[j];
+    l.t0 = this.segments[i0].t0;
+    l.t1 = this.segments[i0].t1;
+    l.m = j - 3 - Math.floor(this.theta(l.t0)/(2 * Math.PI));
+    l.update_mesh();
+    if (i1) {
+     l.mesh.material.alpha = 0.3;
+    } else {
+     l.mesh.material.alpha = 1;
+    }
+   }
+   
+   for (j in this.spiral.start_markers) {
+    var m = this.spiral.start_markers[j];
+    m.material.alpha = (m.i == 0) ? 1 : 0;
+   }
+
+   this.set_msg(i1 ? 2 : 1);
+  }
+  
+  demo.init();
+ </script>
+</body>
+</html>

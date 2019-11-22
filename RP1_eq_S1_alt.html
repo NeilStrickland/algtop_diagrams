@@ -1,0 +1,142 @@
+<html>
+ <head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RP1 and the circle</title>
+  <style type="text/css" media="screen">
+   @import url(algtop_demo.css);
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js"> 
+   MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX","output/HTML-CSS"],
+    tex2jax: {inlineMath: [["$","$"]]}
+   });
+  </script> 
+  <script src="https://preview.babylonjs.com/babylon.js"></script>
+  <script src="algtop.js"></script>
+  <script src="letters.js"></script>
+  <script>
+   var demo = {};
+   
+   demo.init = function() {
+    var i,c,x,g,u,v;
+
+    var me = this;
+
+    var d = document.getElementById('alt_pic');
+    d.onclick = function() {
+     window.location = 'RP1_eq_S1.html';
+    }
+
+    this.x0 = 500;
+    this.y0 = 280;
+    this.r0 = 200;
+    this.x1 = this.x0 + 0.5 * this.r0;
+    this.y1 = this.y0;
+    this.r1 = 0.5 * this.r0;
+    this.bf = 1.2;
+    
+    this.main_svg     = document.getElementById('main_svg');
+    this.left_circle  = algtop.svg.circle(this.x0,this.y0,this.r0,'#0000FF',3);
+    this.right_circle = algtop.svg.circle(this.x1,this.y1,this.r1,'#01452C',3);
+    this.bar          = algtop.svg.line(this.x0 - this.bf * this.r0,this.y0,
+				        this.x0 + this.bf * this.r0,this.y0,'#000000',1);
+    this.o_marker     = algtop.svg.disc(this.x0, this.y0, 5, '#000000');
+    this.w0_marker    = algtop.svg.disc(this.x0 + this.r0, this.y0, 5, '#FF0000');
+    this.w1_marker    = algtop.svg.disc(this.x0 - this.r0, this.y0, 5, '#FF0000');
+    this.z_marker     = algtop.svg.disc(this.x1 + this.r1, this.y0, 5, '#FF00FF');
+    this.left_circle.setAttribute('pointer-events','none');
+    this.right_circle.setAttribute('pointer-events','none');
+    this.bar.setAttribute('pointer-events','none');
+    this.o_marker.setAttribute('pointer-events','none');
+    this.w0_marker.setAttribute('pointer-events','none');
+    this.w1_marker.setAttribute('pointer-events','none');
+    this.z_marker.setAttribute('pointer-events','none');
+
+    this.main_svg.appendChild(this.left_circle);
+    this.main_svg.appendChild(this.right_circle);
+    this.main_svg.appendChild(this.bar);
+    this.main_svg.appendChild(this.o_marker);
+    this.main_svg.appendChild(this.w0_marker);
+    this.main_svg.appendChild(this.w1_marker);
+    this.main_svg.appendChild(this.z_marker);
+
+    this.t  = 0;
+    
+    this.drag = false;
+    
+    this.main_svg.onmouseout = function(e) {
+     me.drag = false;
+    }
+
+    this.main_svg.onmousedown = function(e) {
+     me.drag = true;
+     me.handle_mousemove(e);
+    }
+
+    this.main_svg.onmouseup = function(e) {
+     me.drag = false;
+    }
+
+    this.main_svg.onmousemove = function(e) {
+     if (me.drag) {
+      me.handle_mousemove(e);
+     }
+    }
+
+   };
+   
+   demo.handle_mousemove = function(e) {
+    var p = this.main_svg.createSVGPoint();
+    p.x = e.clientX;
+    p.y = e.clientY;
+    var q = p.matrixTransform(this.main_svg.getScreenCTM().inverse());
+    this.t = 2 * Math.atan2(q.y - this.y0, q.x - this.x0);
+
+    this.w0_marker.setAttribute('cx',this.x0 + this.r0 * Math.cos(this.t/2));
+    this.w0_marker.setAttribute('cy',this.y0 + this.r0 * Math.sin(this.t/2));
+    this.w1_marker.setAttribute('cx',this.x0 - this.r0 * Math.cos(this.t/2));
+    this.w1_marker.setAttribute('cy',this.y0 - this.r0 * Math.sin(this.t/2));
+    this.z_marker.setAttribute('cx',this.x1 + this.r1 * Math.cos(this.t));
+    this.z_marker.setAttribute('cy',this.y1 + this.r1 * Math.sin(this.t));
+    this.bar.setAttribute('x1',this.x0 - this.bf * this.r0 * Math.cos(this.t/2));
+    this.bar.setAttribute('y1',this.y0 - this.bf * this.r0 * Math.sin(this.t/2));
+    this.bar.setAttribute('x2',this.x0 + this.bf * this.r0 * Math.cos(this.t/2));
+    this.bar.setAttribute('y2',this.y0 + this.bf * this.r0 * Math.sin(this.t/2));
+   }
+   
+   
+  </script>
+ </head>
+ <body onload="demo.init()">
+  <div id="frame>"
+   <div style="width: 1000px; height: 0px; margin: 0 auto;">
+    <div id="control_div" style="position:absolute; left:50px; top:50px;">
+     <div class="control" style="width: 150px;" id="index" onclick="location='index.php'">Index</div>
+     <div class="control" style="width: 150px;" id="alt_pic">Alternative picture</div>
+    </div>
+    <div style="position:absolute">
+     <svg id="main_svg" width="1000" height="600"></svg>
+     <div style="position: absolute; left: 310px; top:100px;">$\mathbb{R}P^1$</div>
+     <div style="position: absolute; left: 590px; top:355px;">$S^1$</div>
+     <div id="msg" style="position: absolute; left: 100px; top: 580px; width: 800px; margin: 0 auto;">
+      This illustrates the fact that $\mathbb{R}P^1$ is homeomorphic to
+      $S^1$.  Recall that $\mathbb{R}P^1=S^1/E$, where $uEv$ iff
+      $v=\pm u$.  A point of $\mathbb{R}P^1$ is an equivalence class for
+      this relation, or in other words a pair of opposite points in
+      $S^1$, as shown on the outer circle.  Given such a pair $p$,
+      we draw a line between them and let $f(p)$ be the point where
+      that line meets the inner circle.  This defines a map
+      $f\colon\mathbb{R}P^1\to S^1$, which can be shown to be a
+      homeomorphism.  Strictly speaking, the codomain here is the
+      circle of radius $1/2$ centred at $1/2\in\mathbb{C}$.  To
+      get a map to the standard unit circle $S^1$, we should
+      consider $g(p)=2\,f(p)-1$.  A little coordinate geometry and
+      algebra gives the formula $g([z])=z^2$, so this is the same
+      map as we have considered previously.
+     </div>
+    </div>
+   </div>
+  </div>
+ </body>
+</html>

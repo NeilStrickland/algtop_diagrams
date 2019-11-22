@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+ <head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Trefoil</title>
+  <style type="text/css" media="screen">
+   @import url(algtop_demo.css);
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js"> 
+   MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX","output/HTML-CSS"],
+    tex2jax: {inlineMath: [["$","$"]]}
+   });
+  </script> 
+  <script src="https://preview.babylonjs.com/babylon.js"></script>
+  <script src="algtop.js"></script>
+  <script src="json/boys_complex_alt.js"></script>
+
+  <style>
+   html, body {
+       overflow: hidden;
+       width: 100%;
+       height: 100%;
+       margin: 0;
+       padding: 0;
+       font-family: arial, verdana;
+       background: white;
+   }
+   
+   .canvas {
+       width: 400;
+       height: 400;
+       touch-action: none;
+   }
+  </style>
+ </head>
+ <body>
+  <div id="control_div" style="position:absolute; left:10px; top:10px;">
+   <div class="control" style="width: 150px;" id="index" onclick="location='index.php'">Index</div>
+  </div>
+   <div style="display: inline-block; text-align: center; width: 650px;">
+    <canvas width="600" height="600" id="trefoil_canvas"></canvas>
+    <br/>
+    This show the trefoil knot $K$, embedded in $\mathbb{R}^3$ with no crossings
+   </div>
+   <div style="display: inline-block; text-align: center; width: 650px;">
+    <svg width="600" height="600" id="trefoil_svg"></svg>
+    <br/>
+    This shows a projection of the knot in $\mathbb{R}^2$.  This
+    inevitably has crossings, so the map $K\to\mathbb{R}^2$ is not injective.
+   </div>
+ <script>
+  var demo = {
+   
+  };
+
+  demo.init = function () {
+   var me = this;
+
+   this.main_svg = document.getElementById('trefoil_svg');
+   
+   var names = ['trefoil'];
+   this.frames = [];
+   
+   for (i in names) {
+    var f = {};
+    this.frames.push(f);
+    var n = names[i];
+    f.name = n;
+    f.canvas = document.getElementById(n + '_canvas');
+    f.engine =
+     new BABYLON.Engine(f.canvas, true, { preserveDrawingBuffer: true, stencil: true });
+    f.scene = algtop.basic_scene(f.engine,f.canvas);
+
+    f.surface = Object.create(algtop[n]);
+    f.surface.n = 256;
+    f.surface.R = 1;
+    f.surface.r = 0.1;
+    f.surface.make_mesh(f.scene);
+    
+    this.set_frame_callbacks(f);
+   };
+  };
+  
+  demo.set_frame_callbacks = function(f) {
+   f.engine.runRenderLoop(function () {
+    if (f.scene) {
+     f.scene.render();
+    }});
+   
+   window.addEventListener("resize", function () {
+    me.engine.resize();
+   });
+
+   var p = [];
+   for (i = 0; i <= 256; i++) {
+    var t = i / 256.;
+    var x = f.surface.frame(t).x;
+    p.push([60*x[0]+240,300-60*x[1]]);
+   }
+
+   this.main_svg.appendChild(algtop.svg.lines(p,'blue',4));
+  };
+
+  demo.init();
+ </script>
+</body>
+</html>

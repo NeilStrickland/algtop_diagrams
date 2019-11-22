@@ -1,0 +1,305 @@
+<html>
+ <head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The subdivision map mu</title>
+  <style type="text/css" media="screen">
+   @import url(algtop_demo.css);
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js"> 
+   MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX","output/HTML-CSS"],
+    tex2jax: {inlineMath: [["$","$"]]}
+   });
+  </script> 
+  <script src="https://preview.babylonjs.com/babylon.js"></script>
+  <script src="algtop.js"></script>
+  <script src="letters.js"></script>
+  <script>
+   var demo = {};
+
+   demo.f = function(x) {
+    return [x[0] + 0.5 * x[1], 0.867 * x[1]];
+   }
+   
+   demo.init = function() {
+    var K0,K,L,V,i,j,k,a,b,c,v,e,f;
+
+    var me = this;
+    this.main_svg = document.getElementById('main_svg');
+    
+    var K0 = {};
+
+    K0.num_vertices = 12;
+    
+    K0.embedding = [
+     this.f([ 0, 0]),
+     this.f([ 1, 0]),
+     this.f([ 0, 1]),
+     this.f([-1, 0]),
+     this.f([ 0,-1]),
+     this.f([ 1,-1]),
+     this.f([ 2,-1]),
+     this.f([ 2, 0]),
+     this.f([ 1, 1]),
+     this.f([ 0, 2]),
+     this.f([-1, 2]),
+     this.f([-1, 1])
+    ];
+
+    K0.edges = [
+     [0,1], [0,2], [0,3], [0,4], [0,5], [0,11], [1,2], [1,5], [1,6],
+     [1,7], [1,8], [2,8], [2,9], [2,10], [2,11], [3,4], [3,11], [4,5],
+     [5,6], [6,7], [7,8], [8,9], [9,10], [10,11]
+    ];
+
+    K0.faces = [
+     [0,1,5], [0,2,11], [0,3,4], [0,3,11], [0,4,5], [1,2,8],
+     [1,5,6], [1,6,7], [1,7,8], [2,8,9], [2,9,10], [2,10,11]
+    ];
+
+    var K = {};
+
+    K.num_vertices = K0.num_vertices;
+
+    K.vertices = [];
+    
+    for (i = 0; i < K.num_vertices; i++) {
+     v = {};
+     v.index = i;
+     v.x = K0.embedding[i][0];
+     v.y = K0.embedding[i][1];
+     v.xy = [v.x,v.y];
+     
+     K.vertices.push(v);
+    }
+
+    V = K.vertices;
+    
+    K.edges = [];
+
+    for (i in K0.edges) {
+     e = {};
+     e.indices = K0.edges[i];
+     e.a = K.vertices[e.indices[0]];
+     e.b = K.vertices[e.indices[1]];
+     K.edges.push(e);
+    }
+    
+    K.faces = [];
+    
+    for (i in K0.faces) {
+     f = {};
+     f.indices = K0.faces[i];
+     f.a = K.vertices[f.indices[0]];
+     f.b = K.vertices[f.indices[1]];
+     f.c = K.vertices[f.indices[2]];
+     K.faces.push(f);
+    }
+
+    this.K = K;
+    
+    var L = {};
+    L.vertices = [];
+    L.VI0 = {};
+    L.VI1 = {};
+    L.VI2 = {};
+    
+    for (i in K.vertices) {
+     v = Object.assign({},K.vertices[i]);
+     v.s = [i];
+     v.x0 = v.x;
+     v.y0 = v.y;
+     v.xy0 = [v.x0,v.y0];
+     v.x1 = v.x;
+     v.y1 = v.y;
+     v.xy1 = [v.x1,v.y1];
+     L.vertices.push(v);
+     L.VI0[i] = v;
+     L.VI1[i] = {};
+     L.VI2[i] = {};
+     for (j in K.vertices) {
+      L.VI2[i][j] = {};
+     }
+    }
+
+    i = L.vertices.length;
+    
+    for (ei in  K.edges) {
+     e = K.edges[ei];
+     v = {};
+     v.index = i;
+     v.s = e.indices;
+     v.x0 = (e.a.x + e.b.x)/2; 
+     v.y0 = (e.a.y + e.b.y)/2;
+     v.xy0 = [v.x0,v.y0];
+     v.x1 = e.b.x;
+     v.y1 = e.b.y;
+     v.xy1 = [v.x1,v.y1];
+     e.centre = v;
+     L.vertices.push(v);
+     L.VI1[e.a.index][e.b.index] = v;
+     i++;
+    }
+
+    for (fi in  K.faces) {
+     f = K.faces[fi];
+     v = {};
+     v.index = i;
+     v.s = f.indices;
+     v.x0 = (f.a.x + f.b.x + f.c.x)/3; 
+     v.y0 = (f.a.y + f.b.y + f.c.y)/3;
+     v.xy0 = [v.x0,v.y0];
+     v.x1 = f.c.x;
+     v.y1 = f.c.y;
+     v.xy1 = [v.x1,v.y1];
+     f.centre = v;
+     L.vertices.push(v);
+     L.VI2[f.a.index][f.b.index][f.c.index] = v;
+     i++;
+    }
+
+    L.num_vertices = L.vertices.length;
+
+    L.edges = [];
+    L.faces = [];
+
+    for (ei in K.edges) {
+     e = K.edges[ei];
+     e.a = L.VI0[e.indices[0]];
+     e.b = L.VI0[e.indices[1]];
+     e.centre = L.VI1[e.indices[0]][e.indices[1]];
+     L.edges.push({ a : e.a, b : e.centre, w : 2 });
+     L.edges.push({ a : e.b, b : e.centre, w : 2 });
+    }
+
+    for (fi in K.faces) {
+     f = K.faces[fi];
+     i = f.a.index;
+     j = f.b.index;
+     k = f.c.index;
+     l = f.centre.index;
+     f.a = L.VI0[i];
+     f.b = L.VI0[j];
+     f.c = L.VI0[k];
+     f.ab = L.VI1[i][j];
+     f.ac = L.VI1[i][k];
+     f.bc = L.VI1[j][k];
+     f.centre = L.VI2[i][j][k];
+
+     L.edges.push({ a : f.a, b : f.centre, w : 1 });
+     L.edges.push({ a : f.b, b : f.centre, w : 1 });
+     L.edges.push({ a : f.c, b : f.centre, w : 1 });
+     L.edges.push({ a : f.ab, b : f.centre, w : 1 });
+     L.edges.push({ a : f.ac, b : f.centre, w : 1 });
+     L.edges.push({ a : f.bc, b : f.centre, w : 1 });
+     
+     L.faces.push({ a : f.a, b : f.ab, c : f.centre, d : 2});
+     L.faces.push({ a : f.a, b : f.ac, c : f.centre, d : 1});
+     L.faces.push({ a : f.b, b : f.ab, c : f.centre, d : 1});
+     L.faces.push({ a : f.b, b : f.bc, c : f.centre, d : 1});
+     L.faces.push({ a : f.c, b : f.ac, c : f.centre, d : 0});
+     L.faces.push({ a : f.c, b : f.bc, c : f.centre, d : 0});
+    }
+    
+    for (fi in L.faces) {
+     f = L.faces[fi];
+     f.indices = [f.a.index,f.b.index,f.c.index];
+
+     if (f.d == 0) {
+      f.col = '#FFDDDD';
+     } else if (f.d == 1) {
+      f.col = '#DDDDFF';
+     } else {
+      f.col = '#DDFFDD';
+     }
+     
+     f.svg = algtop.svg.polygon([f.a.xy0,f.b.xy0,f.c.xy0],f.col);
+     this.main_svg.appendChild(f.svg);
+    }
+
+    for (ei in L.edges) {
+     e = L.edges[ei];
+     e.indices = [e.a.index,e.b.index];
+     e.svg = algtop.svg.line(e.a.x0,e.a.y0,e.b.x0,e.b.y0,
+			     e.w == 2 ? '#379708' : '#8888FF',0.01 * e.w);
+     this.main_svg.appendChild(e.svg);
+    }
+
+    for (vi in L.vertices) {
+     v = L.vertices[vi];
+     v.svg = algtop.svg.disc(v.x0,v.y0,0.015,'black');
+     this.main_svg.appendChild(v.svg);
+    }
+
+    this.L = L;
+    
+    this.stage_slider = document.getElementById('stage_slider');
+
+    this.stage_slider.oninput = function() {
+     me.set_stage(this.value);
+    }
+   };
+
+   demo.set_stage = function(t0) {
+    var t,L,i,u,v,w,e,f;
+
+    t = 0.01 * t0;
+    L = this.L;
+    
+    for (i = 0; i < L.num_vertices; i++) {
+     v = L.vertices[i];
+     v.x = (1 - t) * v.x0 + t * v.x1;
+     v.y = (1 - t) * v.y0 + t * v.y1;
+     v.xy = [v.x,v.y];
+     v.svg.setAttribute('cx',v.x);
+     v.svg.setAttribute('cy',v.y);
+    }
+
+    for (i in L.edges) {
+     e = L.edges[i];
+     e.svg.setAttribute('x1',e.a.x);
+     e.svg.setAttribute('y1',e.a.y);
+     e.svg.setAttribute('x2',e.b.x);
+     e.svg.setAttribute('y2',e.b.y);
+    }
+
+    for (i in L.faces) {
+     f = L.faces[i];
+     f.svg.setAttribute('d',algtop.svg.points_string([f.a.xy,f.b.xy,f.c.xy]));
+    }
+   }
+   
+   
+  </script>
+ </head>
+ <body onload="demo.init()">
+  <div id="control_div" style="position:absolute; left:10px; top:10px;">
+   <div class="control" style="width: 150px;" id="index" onclick="location='index.php'">Index</div>
+  </div>
+  <div id="frame>"
+   <div style="width: 1000px; margin: 0 auto;">
+    <svg id="main_svg" width="1000" height="600" viewBox="-2 -1 5 3">
+    </svg>
+   </div>
+   <div id="slidecontainer" style="width: 500px; margin: 0 auto;">
+    <input type="range" min="0" max="100" value="0" class="slider" id="stage_slider">
+   </div>
+   <br/><br/>
+   <div style="width: 700px; margin: 0 auto;">
+    With the slider all the way to the right, this shows a complex $K$.
+    With the slider all the way to left, we see the barycentric
+    subdivision $K'$.  Sliding the slider shows the effect of the map
+    $|\mu|\colon|K'|\to|K|$ and the straight line homotopy between
+    $\beta$ and $|\mu|$.
+    <br/><br/>
+    Note that the $2$-simplices of $K'$ have different colours.  The
+    red ones get squashed by $|\mu|$ to a single point, the blue ones
+    get squashed by $|\mu|$ onto a line, and the green ones get
+    stretched by $|\mu|$ to cover a $2$-simplex of $K$.  Each
+    $2$-simplex of $K$ is divided into two red $2$-simplices, three
+    blue $2$-simplices and a single green $2$-simplex of $K'$.
+   </div>
+  </div>
+ </body>
+</html>

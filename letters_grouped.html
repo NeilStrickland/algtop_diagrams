@@ -1,0 +1,80 @@
+<html>
+ <head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Letters</title>
+  <style type="text/css" media="screen">
+   @import url(algtop_demo.css);
+  </style>
+  <script src="https://preview.babylonjs.com/babylon.js"></script>
+  <script src="algtop.js"></script>
+  <script src="letters.js"></script>
+  <script>
+   var demo = {};
+   
+   demo.init = function() {
+    var i,c,x,g,u,v;
+
+    var me = this;
+
+    this.groups = [
+     ["C","G","L","M","N","S","U","V","W"],
+     ["E","F","J","T","Y"],
+     ["H","I","K","X"],
+     ["O","D","A","Q","B"]
+    ];
+
+    this.letters = [];
+    
+    this.main_svg = document.getElementById('main_svg');
+    
+    for (i in this.groups) {
+     for (j in this.groups[i]) {
+      c = this.groups[i][j];
+      x = algtop.letters[c];
+      g = x.create_svg();
+      u = 80 + 120 * j;
+      v = 80 + 150 * i;
+      g.setAttribute('transform','matrix(40,0,0,-40,' + u + ',' + v + ')');
+      this.main_svg.appendChild(g);
+      this.letters.push(x);
+     };
+    }
+
+    this.stage_slider = document.getElementById('stage_slider');
+
+    this.stage_slider.oninput = function() {
+     me.set_stage(this.value);
+    }
+   };
+
+   demo.set_stage = function(j) {
+    var i;
+
+    for (i in this.letters) {
+     this.letters[i].set_stage(j);
+    }
+   }
+   
+   
+  </script>
+ </head>
+ <body onload="demo.init()">
+  <div id="control_div" style="position:absolute; left:10px; top:10px;">
+   <div class="control" style="width: 150px;" id="index" onclick="location='index.php'">Index</div>
+  </div>
+  <div id="frame">
+   <div>
+    <svg id="main_svg" width="1500" height="650">
+    </svg>
+   </div>
+   <div id="slidecontainer" style="width:500">
+    <input type="range" min="0" max="64" value="0" class="slider" id="stage_slider">
+   </div>
+   <br/><br/>
+   <div id="text" style="width: 800px; margin: 0 auto; text-align:left">
+    This again shows how the letters of the alphabet can be straightened out
+    into simpler shapes, but this time we have grouped topologically similar letters together. 
+   </div>
+  </div>
+ </body>
+</html>

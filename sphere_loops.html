@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+ <head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Sphere loops</title>
+  <style type="text/css" media="screen">
+   @import url(algtop_demo.css);
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js"> 
+   MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX","output/HTML-CSS"],
+    tex2jax: {inlineMath: [["$","$"]]}
+   });
+  </script> 
+  <script src="https://preview.babylonjs.com/babylon.js"></script>
+  <script src="algtop.js"></script>
+  <style>
+   html, body {
+       overflow: hidden;
+       width: 100%;
+       height: 100%;
+       margin: 0;
+       padding: 0;
+   }
+   
+   canvas {
+       width: 100%;
+       height: 600px;
+       touch-action: none;
+   }
+  </style>
+ </head>
+ <body>
+  <div id="control_div" style="position:absolute; left:10px; top:10px;">
+   <div class="control" style="width: 150px;" id="index" onclick="location='index.php'">Index</div>
+  </div>
+  <div style="text-align:center">
+   <canvas id="main_canvas"></canvas>
+   <div id="slidecontainer" style="width: 800px; margin: 0 auto;">
+    <input type="range" min="0" max="100" value="0" class="slider" id="stage_slider">
+   </div>
+   <br/><br/>
+   <div id="text" style="width: 800px; margin: 0 auto; text-align:left">
+    This shows that a loop around the equator in $S^2$ is homotopic to a constant loop.
+   </div>
+  </div>
+ <script>
+
+  var demo = {};
+
+  demo.u = function(s,t) {
+   var cs = Math.cos(Math.PI * s);
+   var ds = Math.cos(Math.PI * s/2);
+   var ss = Math.sin(Math.PI * s);
+   var ct = Math.cos(2 * Math.PI * t);
+   var st = Math.sin(2 * Math.PI * t);
+   return [2 * ds * st, ct * ss + ss,1 - ct - cs - ct * cs];
+  }
+  
+  demo.init = function() {
+   var tt,t,k,col,mat,v,i,p,cols,me;
+
+   me = this;
+   this.s = 0;
+   
+   this.slider = document.getElementById("stage_slider");
+   this.canvas = document.getElementById("main_canvas");
+   this.engine =
+     new BABYLON.Engine(this.canvas, true, { preserveDrawingBuffer: true, stencil: true });
+
+   this.scene = algtop.basic_scene(this.engine,this.canvas);
+
+   this.sphere = Object.create(algtop.sphere);
+   this.sphere.r = 2;
+   var mat = new BABYLON.StandardMaterial("mat", this.scene);
+//   mat.alpha = 0.8;
+   mat.backFaceCulling = false;
+   mat.diffuseColor = new BABYLON.Color3(0.5,0.5,0.5);
+   this.sphere.make_mesh();
+   this.sphere.mesh.material = mat;
+   
+   this.loop = Object.create(algtop.thick_curve);
+   this.loop.n = 64;
+   this.loop.colour = new BABYLON.Color4(1,0,0,1);
+   this.loop.embedding = function(t) { return me.u(me.s,t); }
+   this.loop.make_mesh(this.scene);
+
+   this.base = algtop.bab.point(this.u(1,0),[0,0,1],0.1,this.scene);
+      
+   this.engine.runRenderLoop(function () {
+    if (me.scene) {
+     me.scene.render();
+    }
+   });
+
+   window.addEventListener("resize", function () {
+    me.engine.resize();
+   });
+
+   this.slider.oninput = function() {
+    me.set_stage(this.value);
+   }
+  }
+
+  demo.set_stage = function(i) {
+   
+   this.s = parseInt(i) * 0.01;
+   this.loop.update_mesh();
+  }
+  
+  demo.init();
+ </script>
+</body>
+</html>

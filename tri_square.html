@@ -1,0 +1,205 @@
+<html>
+ <head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Triangle/Square</title>
+  <style type="text/css" media="screen">
+   @import url(algtop_demo.css);
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js"> 
+   MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX","output/HTML-CSS"],
+    tex2jax: {inlineMath: [["$","$"]]}
+   });
+  </script> 
+  <script src="https://preview.babylonjs.com/babylon.js"></script>
+  <script src="algtop.js"></script>
+  <script src="letters.js"></script>
+  <script>
+   var demo = {};
+   
+   demo.init = function() {
+    var K0,K,V,i,v,e,f,a,b;
+
+    var me = this;
+    this.main_svg = document.getElementById('main_svg');
+    
+    var K0 = {};
+
+    K0.num_vertices = 7;
+    
+    K0.embedding0 = [
+     [-0.50, 0.000],
+     [-0.25, 0.000],
+     [ 0.25, 0.000],
+     [ 0.50, 0.000],
+     [ 0.25, 0.433],
+     [ 0.00, 0.867],
+     [-0.25, 0.433]
+    ];
+
+    K0.embedding1 = [
+     [ 0.0, 0.0],
+     [ 0.5, 0.0],
+     [ 1.0, 0.0],
+     [ 1.0, 1.0],
+     [ 0.5, 1.0],
+     [ 0.0, 1.0],
+     [ 0.0, 0.5]
+    ];
+
+    K0.edges = [
+     [0,1], [0,6], [1,2], [2,3], [3,4], [4,5], [5,6]
+    ];
+
+    K0.dotted_edges = [
+     [1,4], [1,6], [2,4], [4,6]
+    ];
+
+    K0.faces = [
+     [0,1,6], [1,2,4], [1,4,6], [2,3,4], [4,5,6]
+    ];
+
+    var K = {};
+
+    K.num_vertices = K0.num_vertices;
+
+    K.vertices = [];
+    
+    for (i = 0; i < K.num_vertices; i++) {
+     v = {};
+     v.index = i;
+     v.x0 = 500 * (K0.embedding0[i][0] + 1);
+     v.y0 = 500 * (1 - K0.embedding0[i][1]);
+     v.x1 = 400 * K0.embedding1[i][0] + 300;
+     v.y1 = 500  - 400 * K0.embedding1[i][1];
+     v.xy0 = [v.x0,v.y0];
+     v.xy1 = [v.x1,v.y1];
+
+     v.x = v.x0;
+     v.y = v.y0;
+     v.xy = [v.x,v.y];
+     
+     K.vertices.push(v);
+    }
+
+    V = K.vertices;
+    
+    K.faces = [];
+    
+    for (i in K0.faces) {
+     f = {};
+     f.indices = K0.faces[i];
+     f.svg = algtop.svg.polygon(
+      [V[f.indices[0]].xy,V[f.indices[1]].xy,V[f.indices[2]].xy],
+      '#DDDDFF'
+     );
+
+     this.main_svg.appendChild(f.svg);
+     K.faces.push(f);
+    }
+
+    K.edges = [];
+
+    for (i in K0.edges) {
+     e = {};
+     e.indices = K0.edges[i];
+     a = K.vertices[e.indices[0]];
+     b = K.vertices[e.indices[1]];
+     e.svg = algtop.svg.line(a.x,a.y,b.x,b.y,'black',4);
+
+     this.main_svg.appendChild(e.svg);
+     K.edges.push(e);
+    }
+    
+    K.dotted_edges = [];
+
+    for (i in K0.dotted_edges) {
+     e = {};
+     e.indices = K0.dotted_edges[i];
+     a = K.vertices[e.indices[0]];
+     b = K.vertices[e.indices[1]];
+     e.svg = algtop.svg.line(a.x,a.y,b.x,b.y,'black',1);
+
+     this.main_svg.appendChild(e.svg);
+     K.edges.push(e);
+    }
+
+    K.all_edges = K.edges.concat(K.dotted_edges);
+    
+    for (i = 0; i < K.num_vertices; i++) {
+     v = K.vertices[i];
+     v.svg = algtop.svg.disc(v.x,v.y,4,'red');
+     this.main_svg.appendChild(v.svg);
+     K.vertices.push(v);
+    }
+    
+    this.K = K;
+    
+    this.stage_slider = document.getElementById('stage_slider');
+
+    this.stage_slider.oninput = function() {
+     me.set_stage(this.value);
+    }
+   };
+
+   demo.set_stage = function(t0) {
+    var t,K,i,u,v,w,e,f;
+
+    t = 0.01 * t0;
+    K = this.K;
+    
+    for (i = 0; i < K.num_vertices; i++) {
+     v = K.vertices[i];
+     v.x = (1 - t) * v.x0 + t * v.x1;
+     v.y = (1 - t) * v.y0 + t * v.y1;
+     v.xy = [v.x,v.y];
+     v.svg.setAttribute('cx',v.x);
+     v.svg.setAttribute('cy',v.y);
+    }
+
+    for (i in K.all_edges) {
+     e = K.edges[i];
+     u = K.vertices[e.indices[0]];
+     v = K.vertices[e.indices[1]];
+     e.svg.setAttribute('x1',u.x);
+     e.svg.setAttribute('y1',u.y);
+     e.svg.setAttribute('x2',v.x);
+     e.svg.setAttribute('y2',v.y);
+    }
+
+    for (i in K.faces) {
+     f = K.faces[i];
+     u = K.vertices[f.indices[0]];
+     v = K.vertices[f.indices[1]];
+     w = K.vertices[f.indices[2]];
+     f.svg.setAttribute('d',algtop.svg.points_string([u,v,w]));
+    }
+   }
+   
+   
+  </script>
+ </head>
+ <body onload="demo.init()">
+  <div id="control_div" style="position:absolute; left:10px; top:10px;">
+   <div class="control" style="width: 150px;" id="index" onclick="location='index.php'">Index</div>
+  </div>
+  <div id="frame">
+   <div style="width: 1000px; margin: 0 auto;">
+    <svg id="main_svg" width="1000" height="600">
+    </svg>
+   </div>
+   <div id="slidecontainer" style="width: 500px; margin: 0 auto;">
+    <input type="range" min="0" max="100" value="0" class="slider" id="stage_slider">
+   </div>
+   <br/>
+   <div id="text" style="width: 800px; margin: 0 auto; text-align:left">
+    This illustrates the fact that the triangle is homeomorphic to the
+    square.  There are many different ways to choose a homeomorphism;
+    the one used here has the advantage that the restriction to each
+    triangle is given by an affine map, so everything is controlled by
+    the position of the vertices.
+   </div>
+  </div>
+ </body>
+</html>

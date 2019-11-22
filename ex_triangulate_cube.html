@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html>
+ <head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Triangulated cube</title>
+  <style type="text/css" media="screen">
+   @import url(algtop_demo.css);
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js"> 
+   MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX","output/HTML-CSS"],
+    tex2jax: {inlineMath: [["$","$"]]}
+   });
+  </script> 
+  <script src="https://preview.babylonjs.com/babylon.js"></script>
+  <script src="https://preview.babylonjs.com/gui/babylon.gui.min.js"></script>
+  <script src="algtop.js"></script>
+  <script src="json/ico_oct_data.js"></script>
+  <style>
+   html, body {
+       overflow: hidden;
+       width: 100%;
+       height: 100%;
+       margin: 0;
+       padding: 0;
+   }
+
+   canvas {
+       width: 100%;
+       height: 500px;
+       touch-action: none;
+   }
+
+  </style>
+ </head>
+ <body>
+  <div style="text-align: center;">
+   <canvas id="main_canvas"></canvas><br/>
+   <div style="width: 700px; margin: 0 auto; text-align: center;">
+    <table class="edged">
+     <tr>
+      <td>0-simplices</td>
+      <td width="200" id="simp0"></td>
+     </tr>
+     <tr>
+      <td>1-simplices</td>
+      <td width="200" id="simp1"></td>
+     </tr>
+     <tr>
+      <td>2-simplices</td>
+      <td width="200" id="simp2"></td>
+     </tr>
+    </table>
+   </div>
+  </div>
+  <script>
+   var demo = {
+    
+   };
+   
+   demo.init = function () {
+    var i,v,e,f;
+    
+    var me = this;
+    
+    this.canvas = document.getElementById('main_canvas');
+    this.engine =
+     new BABYLON.Engine(this.canvas, true, { preserveDrawingBuffer: true, stencil: true });
+    this.scene = algtop.basic_scene(this.engine,this.canvas);
+    
+    var V0 = [
+     ['a',0,0,0],
+     ['b',1,0,0],
+     ['c',0,1,0],
+     ['d',0,0,1],
+     ['e',1,1,0],
+     ['f',0,1,1],
+     ['g',1,0,1],
+     ['h',1,1,1]
+    ];
+    
+    var E0 = [
+     [0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[1,4],[1,6],[1,7],
+     [2,4],[2,5],[2,7],[3,5],[3,6],[3,7],[4,7],[5,7],[6,7]
+    ];
+    
+    var F0 = [
+     [0,1,4], [0,1,6], [0,2,4], [0,2,5],
+     [0,3,5], [0,3,6], [1,4,7], [1,6,7],
+     [2,4,7], [2,5,7], [3,5,7], [3,6,7]    
+    ];
+    
+    var K = {};
+    K.num_vertices = V0.length;
+    K.vertices = [];
+    
+    this.r = 1.5;
+    
+    for (i = 0; i < K.num_vertices; i++) {
+     v = {};
+     v.index = i;
+     v.name = V0[i][0];
+     v.x = algtop.bab.vect([(2 * V0[i][1] - 1) * this.r,
+			    (2 * V0[i][2] - 1) * this.r,
+			    (2 * V0[i][3] - 1) * this.r]);
+     v.bab = algtop.bab.point(v.x,[1,0,0],0.1,this.scene);
+     
+     
+     var p = v.x.scale(1.1);
+     var n = p.subtract(this.scene.camera.position);
+     v.source_plane = new BABYLON.Plane(-n.x,-n.y,-n.z,0);
+     v.source_plane.normalize();
+     
+     var opts = {
+      sourcePlane : v.source_plane,
+      updatable : true
+     };
+     
+     v.label_plane = BABYLON.MeshBuilder.CreatePlane('plane_' + v.name,opts,this.scene);
+     v.label_plane.position = p;
+     v.label_plane.sourcePlane = v.source_plane;
+     v.plane_texture = BABYLON.GUI.AdvancedDynamicTexture.CreateForMesh(v.label_plane);
+     v.button = BABYLON.GUI.Button.CreateSimpleButton('button_' + v.name, v.name);
+     v.button.width  = 0.2;
+     v.button.height = 0.2;
+     v.button.color  = 'black';
+     v.button.background = 'white';
+     v.button.fontSize = 200;
+     v.plane_texture.addControl(v.button);
+     
+     K.vertices.push(v);
+    }
+    
+    K.edges = [];
+    for (i = 0; i < E0.length; i++) {
+     e = {};
+     e.indices = E0[i];
+     var a = K.vertices[E0[i][0]];
+     var b = K.vertices[E0[i][1]];
+     e.vertices = [a,b];
+     e.name = a.name + b.name;
+     e.bab = algtop.bab.line(a.x,b.x,[0,0,1],this.scene);
+     
+     K.edges.push(e);
+    }
+    
+    K.faces = [];
+    for (i = 0; i < F0.length; i++) {
+     f = {};
+     f.indices = F0[i];
+     var a = K.vertices[F0[i][0]];
+     var b = K.vertices[F0[i][1]];
+     var c = K.vertices[F0[i][2]];
+     f.vertices = [a,b,c];
+     f.name = a.name + b.name + c.name;
+     
+     f.bab = algtop.bab.triangle(a.x,b.x,c.x,[0.5,1,0.5],this.scene);
+     
+     K.faces.push(f);
+    }
+
+    this.simp_td = [];
+    this.simp_td.push(document.getElementById('simp0'));
+    this.simp_td.push(document.getElementById('simp1'));
+    this.simp_td.push(document.getElementById('simp2'));
+
+    s = '$\\{';
+    for (i in K.vertices) {
+     if (i > 0) { s += ','; }
+     s += K.vertices[i].name;
+    }
+    s += '\\}$';
+    this.simp_td[0].innerHTML = s;
+
+    s = '$\\{';
+    for (i in K.vertices) {
+     if (i > 0) { s += ','; }
+     s += K.edges[i].name;
+    }
+    s += '\\}$';
+    this.simp_td[1].innerHTML = s;
+    
+    s = '$\\{';
+    for (i in K.faces) {
+     if (i > 0) { s += ','; }
+     s += K.faces[i].name;
+    }
+    s += '\\}$';
+    this.simp_td[2].innerHTML = s;
+        
+    this.K = K;
+    
+    i = 0;
+    
+    this.engine.runRenderLoop(function () {
+     if (me.scene) {
+      me.orient_labels();
+      me.scene.render();
+     }});
+    
+    window.addEventListener("resize", function () {
+     me.engine.resize();
+    });
+   };
+   
+   demo.orient_labels = function() {
+    for (i in this.K.vertices) {
+     var v = this.K.vertices[i];
+     var n = v.label_plane.position.subtract(this.scene.camera.position);
+     v.source_plane = new BABYLON.Plane(-n.x,-n.y,-n.z,0);
+     v.source_plane.normalize();
+     v.label_plane.setDirection(v.source_plane.normal.scale(-1));     
+    }
+   }
+  
+  demo.init();
+ </script>
+</body>
+</html>
