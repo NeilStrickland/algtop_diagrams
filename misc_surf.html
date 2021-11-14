@@ -92,20 +92,8 @@
      new BABYLON.Engine(f.canvas, true, { preserveDrawingBuffer: true, stencil: true });
     f.scene = algtop.basic_scene(f.engine,f.canvas);
 
-    if (n == 'boys') {
-     f.mesh = new BABYLON.Mesh("boys", f.scene);
-     var vertexData = new BABYLON.VertexData();
-     vertexData.positions = algtop.flat(object_data.positions);
-     vertexData.normals   = algtop.flat(object_data.normals);
-     vertexData.indices   = algtop.flat(object_data.indices);
-     vertexData.applyToMesh(f.mesh);
-     c = algtop.surface.colour;
-     
-     algtop.set_colour(f.mesh,c.r,c.g,c.b);
-    } else {
-     f.surface = Object.create(algtop[n]);
-     f.surface.make_mesh(f.scene);
-    }
+    f.surface = Object.create(algtop[n]);
+    f.surface.make_mesh(f.scene);
     
     this.set_frame_callbacks(f);
    };
