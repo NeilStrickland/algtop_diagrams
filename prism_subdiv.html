@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html>
+ <head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Prism subdivision</title>
+  <style type="text/css" media="screen">
+   @import url(algtop_demo.css);
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js"> 
+   MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX","output/HTML-CSS"],
+    tex2jax: {inlineMath: [["$","$"]]}
+   });
+  </script> 
+  <script src="https://preview.babylonjs.com/babylon.js"></script>
+  <script src="https://preview.babylonjs.com/gui/babylon.gui.min.js"></script>
+  <script src="algtop.js"></script>
+  <style>
+   html, body {
+       overflow: hidden;
+       width: 100%;
+       height: 100%;
+       margin: 0;
+       padding: 0;
+   }
+
+   canvas {
+       width: 100%;
+       height: 500px;
+       touch-action: none;
+   }
+
+  </style>
+ </head>
+ <body>
+  <div id="control_div" style="position:absolute; left:10px; top:10px;">
+   <div class="control" style="width: 150px;" id="index" onclick="location='index.php'">Index</div>
+  </div>
+  <div>
+   <canvas id="main_canvas"></canvas><br/>
+   <div id="slidecontainer" style="width: 800px; margin: 0 auto;">
+    <input type="range" min="0" max="100" value="0" class="slider" id="stage_slider">
+   </div>
+   <br/><br/>
+   <div style="width: 700px; margin: 0 auto;">
+    This shows the subdivision of the prism $[0,1]\times\Delta_3$ into the
+    $3$-simplices $\zeta_i(\Delta_4)$ for $i=0,\dotsc,3$.  Each vertex of the
+    prism has the form $(i,e_j)$ with $i\in\{0,1\}$ and $j\in\{0,1,2\}$;
+    this is labelled $ij$ in the diagram above.  The simplex $\zeta_0(\Delta_3)$
+    has vertices $\{(0,e_0),(1,e_0),(1,e_1),(1,e_2)\}$ or in other words
+    $\{00,10,11,12\}$.  The simplex $\zeta_1(\Delta_3)$ has vertices
+    $\{00,01,11,12\}$, and the simplex $\zeta_2(\Delta_3)$ has vertices
+    $\{00,01,02,12\}$.
+   </div>
+  </div>
+  <script>
+   var demo = {
+    
+   };
+   
+   demo.init = function () {
+    var i,v,e,f;
+    
+    var me = this;
+    
+    this.slider = document.getElementById("stage_slider");
+    this.canvas = document.getElementById('main_canvas');
+    this.engine =
+     new BABYLON.Engine(this.canvas, true, { preserveDrawingBuffer: true, stencil: true });
+    this.scene = algtop.basic_scene(this.engine,this.canvas);
+    this.scene.camera.radius = 5;
+
+    this.vertices = [
+     [1,0,-0.5],[-0.5,0.866,-0.5],[-0.5,-0.866,-0.5],
+     [1,0, 0.5],[-0.5,0.866, 0.5],[-0.5,-0.866, 0.5]
+    ];
+
+    this.vertex_names = ['00','01','02','10','11','12'];
+    
+    this.vertex_index = {};
+    
+    for (i0 = 0; i0 <= 1; i0++) {
+     this.vertex_index[i0] = {};
+     for (i1 = 0; i1 <= 1; i1++) {
+      this.vertex_index[i0][i1] = {};
+      for (i2 = 0; i2 <= 1; i2++) {
+       this.vertex_index[i0][i1][i2] = {};
+       for (i3 = 0; i3 <= 1; i3++) {
+        if (i0 + i1 + i2 + i3 == 0) { continue; }
+        v = {};
+        v.s = [i0,i1,i2,i3];
+        v.d = i0+i1+i2+i3-1;
+        v.t = [v.s[0]/(v.d+1),v.s[1]/(v.d+1),v.s[2]/(v.d+1),v.s[3]/(v.d+1)];
+        v.x = algtop.tetrahedron_embedding(v.t);
+        this.vertices.push(v);
+        this.vertex_index[i0][i1][i2][i3] = v;
+       }
+      }
+     }
+    }
+    
+    var S0 = [[0,3,4,5],[0,1,4,5],[0,1,2,5]];
+
+    this.max_simplices = [];
+
+    this.vertex_cols = {
+     0 : [1,0,0],
+     1 : [0,0,1],
+     2 : [1,0,1],
+     3 : [0,0,0]
+    };
+    
+    for (i in S0) {
+     s = {};
+     s.vertex_indices = S0[i];
+     s.group = new BABYLON.Mesh.CreateBox(null, 0.01, this.scene);
+     
+     s.vertices = [];
+     c = [0,0,0,0];
+     
+     for (j = 0; j < 4; j++) {
+      var v = {};
+      var k = s.vertex_indices[j];
+      var x = this.vertices[k];
+      v.x = algtop.bab.vect(x);
+      v.bab = algtop.bab.point(v.x,k < 3 ? [1,0,0] : [0,0,1],0.04,this.scene);
+      v.bab.parent = s.group;
+
+      var p = v.x.scale(1.1);
+      var n = p.subtract(this.scene.camera.position);
+      v.source_plane = new BABYLON.Plane(-n.x,-n.y,-n.z,0);
+      v.source_plane.parent = s.group;
+      v.source_plane.normalize();
+     
+      var opts = {
+       sourcePlane : v.source_plane,
+       updatable : true
+      };
+     
+      v.label_plane = BABYLON.MeshBuilder.CreatePlane('plane_' + v.name,opts,this.scene);
+      v.label_plane.parent = s.group;
+      v.label_plane.position = p;
+      v.label_plane.sourcePlane = v.source_plane;
+      v.plane_texture = BABYLON.GUI.AdvancedDynamicTexture.CreateForMesh(v.label_plane);
+      v.button = BABYLON.GUI.Button.CreateSimpleButton('button_' + i + j, this.vertex_names[k]);
+      v.button.width  = 0.15;
+      v.button.height = 0.1;
+      v.button.color  = 'black';
+      v.button.background = 'white';
+      v.button.fontSize = 100;
+      v.plane_texture.addControl(v.button);
+
+      c = [c[0] + x[0],c[1] + x[1],c[2] + x[2]];
+      s.vertices.push(v);
+     }
+
+     c = [c[0]/4,c[1]/4,c[2]/4];
+     s.centre = algtop.bab.vect(c);
+
+     s.edges = [];
+     for (i = 0; i < 4; i++) {
+      for (j = i+1; j < 4; j++) {
+       var e = {};
+       e.indices = [i,j];
+       var a = s.vertices[i];
+       var b = s.vertices[j];
+       e.vertices = [a,b];
+       e.bab = algtop.bab.line(a.x,b.x,[0,0,1],this.scene);
+       e.bab.parent = s.group;
+       
+       s.edges.push(e);
+      }
+     }
+
+     s.faces = [];
+     for (i = 0; i < 4; i++) {
+      for (j = i+1; j < 4; j++) {
+       for (k = j+1; k < 4; k++) {
+        f = {};
+        f.indices = [i,j,k];
+        var a = s.vertices[i];
+        var b = s.vertices[j];
+        var c = s.vertices[k];
+        f.vertices = [a,b,c];
+
+        f.bab = algtop.bab.triangle(a.x,b.x,c.x,[0.5,1,0.5],this.scene);
+        f.bab.parent = s.group;
+        
+        s.faces.push(f);
+       }
+      }
+     }
+
+     this.max_simplices.push(s);
+    }
+    
+    this.engine.runRenderLoop(function () {
+     if (me.scene) {
+      me.orient_labels();
+      me.scene.render();
+     }});
+    
+    window.addEventListener("resize", function () {
+     me.engine.resize();
+    });
+
+    this.slider.oninput = function() {
+     me.set_stage(this.value);
+    }
+
+   };
+   
+   demo.orient_labels = function() {
+    for (var i in this.max_simplices) {
+     for (var j = 0; j < 4; j++) {
+      var v = this.max_simplices[i].vertices[j];
+      var n = v.label_plane.position.subtract(this.scene.camera.position);
+      v.source_plane = new BABYLON.Plane(-n.x,-n.y,-n.z,0);
+      v.source_plane.normalize();
+      v.label_plane.setDirection(v.source_plane.normal.scale(-1));
+     }
+    }
+   }
+  
+   demo.set_stage = function(i) {
+    var i0 = parseInt(i);
+    var i1 = i0 * 0.01;
+    this.s = i1;
+
+    for (var j in this.max_simplices) {
+     var s = this.max_simplices[j];
+     var c = algtop.bab.vect(s.centre).scale(2 * this.s);
+     s.group.position = c;
+    }
+   }
+   
+   demo.init();
+ </script>
+</body>
+</html>
