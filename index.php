@@ -1,7 +1,8 @@
 <?php
 
-require_once('../../include/util.inc'); 
-$labels = parse_aux_labels('MAS435');
+require_once('../MAS435.php'); 
+$labels = $course->parse_aux_labels();
+$keys = $course->parse_youtube_keys();
 
 $demos_json = <<<JSON
 [
@@ -36,6 +37,8 @@ $demos_json = <<<JSON
  ["exp","The exponential map",[]],
  ["exp_cover","The exponential map is a covering",["prop-exp-covering"]],
  ["exp_lift","Path lifting",["prop-path-lifting"]],
+ ["hty_lift","Homotopy lifting",["prop-homotopy-lifting"]],
+ ["prism_subdiv","Subdivision of a prism \$[0,1]\\\\times\\\\Delta_2\$",[]],
  ["tetra_bdy","Boundary of a tetrahedron",["eg-simplex-boundary"]],
  ["tetra_subdiv","Barycentric subdivision of a tetrahedron",["eg-simplex-subdiv"]],
  ["mu","The map \$\\\\mu\\\\colon|K'|\\\\to|K|\$",["eg-mu"]]
@@ -64,13 +67,30 @@ foreach($demos0 as $d0) {
   $d->refs[] = $labels[$label];
  }
  $d->ref_string = implode(', ', $d->refs);
+
+ $d->youtube_key = '';
+ $d->youtube_url = '';
+ $d->youtube_link = '';
+
+ if (isset($keys[$d->name]) && $keys[$d->name]) {
+  $d->youtube_key = $keys[$d->name];
+  //  $d->youtube_url = 'https://youtu.be/' . $d->youtube_key;
+  $d->youtube_url = 'bare_youtube.php?key=' . $d->youtube_key;
+  $d->youtube_link = <<<HTML
+<span class="video_link"><img class="hoverpointer" src="video_icon.png" height="20px"
+   onclick="location='{$d->youtube_url}'"</img></span>
+
+HTML;
+ }
+
  $d->html = <<<HTML
  <tr>
-  <td width="300px"><a href="{$d->name}.html">{$d->title}</a></td>
+  <td width="300px"><a href="{$d->name}.html">{$d->title}</a>{$d->youtube_link}</td>
   <td width="250px">{$d->ref_string}</td>
  </tr>
 
 HTML;
+
 }
 
 $num_demos = count($demos);
@@ -95,6 +115,15 @@ echo <<<HTML
     top: 70px;
    }
      
+   span.video_link {
+    position:absolute;
+    right: 5px;
+   }
+
+   span.video_link:hover {
+    cursor: pointer
+   }
+
   </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js"> 
    MathJax.Hub.Config({
