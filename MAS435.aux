@@ -18,12 +18,13 @@
 \providecommand\HyField@AuxAddToCoFields[2]{}
 \@ifundefined{amsrefs@bibcite}{}{\let\bibcite\amsrefs@bibcite}
 \bibstyle{amsrn}
-\@writefile{toc}{\contentsline {section}{\tocsection {}{1}{Introduction}}{1}{section.1}}
+\@writefile{toc}{\contentsline {section}{\tocsection {}{1}{Introduction}}{1}{section.1}\protected@file@percent }
 \newlabel{sec-intro}{{1}{1}{Introduction}{section.1}{}}
 \newlabel{eg-letters}{{1.1}{1}{}{theorem.1.1}{}}
+\newlabel{defn-cut-point}{{1.2}{2}{}{theorem.1.2}{}}
 \newlabel{defn-simplex}{{1.3}{3}{}{theorem.1.3}{}}
 \newlabel{eg-misc-spaces}{{1.4}{4}{}{theorem.1.4}{}}
-\@writefile{toc}{\contentsline {section}{\tocsection {}{2}{Simplicial complexes}}{6}{section.2}}
+\@writefile{toc}{\contentsline {section}{\tocsection {}{2}{Simplicial complexes}}{6}{section.2}\protected@file@percent }
 \newlabel{sec-simplicial}{{2}{6}{Simplicial complexes}{section.2}{}}
 \newlabel{eg-simp-misc-i}{{2.1}{6}{}{theorem.2.1}{}}
 \newlabel{eg-simp-misc-ii}{{2.2}{6}{}{theorem.2.2}{}}
@@ -35,6 +36,8 @@
 \newlabel{defn-ugr}{{2.10}{8}{}{theorem.2.10}{}}
 \newlabel{eg-ugr}{{2.11}{8}{}{theorem.2.11}{}}
 \newlabel{defn-simp-complex}{{2.12}{8}{}{theorem.2.12}{}}
+\newlabel{eg-octahedron}{{2.14}{9}{}{theorem.2.14}{}}
+\newlabel{eg-simplicial-letters}{{2.15}{9}{}{theorem.2.15}{}}
 \newlabel{defn-asc-map}{{2.16}{9}{}{theorem.2.16}{}}
 \newlabel{prop-asc-map}{{2.17}{10}{}{theorem.2.17}{}}
 \newlabel{defn-simp-map}{{2.18}{10}{}{theorem.2.18}{}}
@@ -46,13 +49,17 @@
 \newlabel{eg-subcomplex}{{2.24}{12}{}{theorem.2.24}{}}
 \newlabel{rem-subcomplex-realisation}{{2.25}{12}{}{theorem.2.25}{}}
 \newlabel{rem-subcomplex-ops}{{2.26}{12}{}{theorem.2.26}{}}
-\@writefile{toc}{\contentsline {section}{\tocsection {}{3}{Topological spaces}}{12}{section.3}}
+\@writefile{toc}{\contentsline {section}{\tocsection {}{3}{Topological spaces}}{12}{section.3}\protected@file@percent }
 \newlabel{sec-top}{{3}{12}{Topological spaces}{section.3}{}}
+\newlabel{defn-metric}{{3.1}{12}{MS, Definition 1.1}{theorem.3.1}{}}
 \newlabel{eg-Rn-metrics}{{3.2}{12}{MS, Examples~1.4 to 1.6}{theorem.3.2}{}}
 \newlabel{eg-matrix-metric}{{3.3}{12}{}{theorem.3.3}{}}
+\newlabel{defn-metric-continuous}{{3.4}{13}{MS, Definition 4.1}{theorem.3.4}{}}
 \newlabel{lem-distance-reducing}{{3.5}{13}{}{theorem.3.5}{}}
 \newlabel{prop-simp-cont}{{3.6}{13}{}{theorem.3.6}{}}
+\newlabel{defn-open-ball}{{3.7}{13}{MS, Definition 1.21}{theorem.3.7}{}}
 \newlabel{defn-metric-open}{{3.8}{13}{MS, Definition 3.10}{theorem.3.8}{}}
+\newlabel{rem-closed}{{3.9}{14}{}{theorem.3.9}{}}
 \newlabel{prop-metric-topology}{{3.10}{14}{MS, Proposition 3.18}{theorem.3.10}{}}
 \newlabel{defn-preimage}{{3.11}{14}{MS, Definition 4.12}{theorem.3.11}{}}
 \newlabel{lem-preimage-props}{{3.12}{14}{}{theorem.3.12}{}}
@@ -62,6 +69,7 @@
 \newlabel{eg-discrete}{{3.16}{15}{}{theorem.3.16}{}}
 \newlabel{lem-same-topology}{{3.17}{15}{}{theorem.3.17}{}}
 \newlabel{cor-same-topology}{{3.18}{15}{}{theorem.3.18}{}}
+\newlabel{rem-nested-balls}{{3.19}{15}{}{theorem.3.19}{}}
 \newlabel{defn-cont}{{3.20}{16}{}{theorem.3.20}{}}
 \newlabel{rem-metric-cont}{{3.21}{16}{}{theorem.3.21}{}}
 \newlabel{eg-cont-lego}{{3.22}{16}{}{theorem.3.22}{}}
@@ -79,7 +87,7 @@
 \newlabel{lem-nbhd}{{3.34}{18}{}{theorem.3.34}{}}
 \newlabel{prop-open-patching}{{3.35}{18}{Open patching}{theorem.3.35}{}}
 \newlabel{prop-closed-patching}{{3.36}{18}{Closed patching}{theorem.3.36}{}}
-\@writefile{toc}{\contentsline {section}{\tocsection {}{4}{Homeomorphism}}{19}{section.4}}
+\@writefile{toc}{\contentsline {section}{\tocsection {}{4}{Homeomorphism}}{19}{section.4}\protected@file@percent }
 \newlabel{sec-homeo}{{4}{19}{Homeomorphism}{section.4}{}}
 \newlabel{defn-homeo}{{4.1}{19}{}{theorem.4.1}{}}
 \newlabel{rem-homeo-vs-he}{{4.2}{19}{}{theorem.4.2}{}}
@@ -91,115 +99,125 @@
 \newlabel{eg-cont-bij}{{4.8}{21}{}{theorem.4.8}{}}
 \newlabel{eg-O-two}{{4.9}{21}{}{theorem.4.9}{}}
 \newlabel{eg-stereo}{{4.10}{22}{}{theorem.4.10}{}}
-\newlabel{defn-triangulation}{{4.11}{22}{}{theorem.4.11}{}}
-\newlabel{eg-triangulation-affine}{{4.12}{22}{}{theorem.4.12}{}}
-\newlabel{eg-triangulate-sphere}{{4.13}{22}{}{theorem.4.13}{}}
+\newlabel{defn-triangulation}{{4.11}{23}{}{theorem.4.11}{}}
+\newlabel{eg-triangulation-affine}{{4.12}{23}{}{theorem.4.12}{}}
+\newlabel{eg-triangulate-sphere}{{4.13}{23}{}{theorem.4.13}{}}
 \newlabel{eg-triangulate-torus}{{4.14}{23}{}{theorem.4.14}{}}
-\newlabel{eg-triangulate-proj}{{4.15}{23}{}{theorem.4.15}{}}
-\@writefile{toc}{\contentsline {section}{\tocsection {}{5}{Paths}}{24}{section.5}}
+\newlabel{eg-triangulate-proj}{{4.15}{24}{}{theorem.4.15}{}}
+\@writefile{toc}{\contentsline {section}{\tocsection {}{5}{Paths}}{24}{section.5}\protected@file@percent }
 \newlabel{sec-paths}{{5}{24}{Paths}{section.5}{}}
-\newlabel{eg-straight-path}{{5.4}{24}{}{theorem.5.4}{}}
+\newlabel{defn-path}{{5.1}{24}{}{theorem.5.1}{}}
+\newlabel{rem-path-param}{{5.3}{24}{}{theorem.5.3}{}}
+\newlabel{eg-straight-path}{{5.4}{25}{}{theorem.5.4}{}}
 \newlabel{defn-path-ops}{{5.5}{25}{}{theorem.5.5}{}}
-\newlabel{rem-path-ops}{{5.6}{25}{}{theorem.5.6}{}}
-\newlabel{defn-path-relation}{{5.7}{25}{}{theorem.5.7}{}}
-\newlabel{prop-path-equiv}{{5.8}{25}{}{theorem.5.8}{}}
+\newlabel{rem-path-ops}{{5.6}{26}{}{theorem.5.6}{}}
+\newlabel{defn-path-relation}{{5.7}{26}{}{theorem.5.7}{}}
+\newlabel{prop-path-equiv}{{5.8}{26}{}{theorem.5.8}{}}
 \newlabel{defn-pi-zero}{{5.9}{26}{}{theorem.5.9}{}}
 \newlabel{eg-convex-connected}{{5.10}{26}{}{theorem.5.10}{}}
-\newlabel{prop-sphere-connected}{{5.11}{26}{}{theorem.5.11}{}}
-\newlabel{prop-ivt}{{5.12}{26}{}{theorem.5.12}{}}
+\newlabel{prop-sphere-connected}{{5.11}{27}{}{theorem.5.11}{}}
+\newlabel{prop-ivt}{{5.12}{27}{}{theorem.5.12}{}}
 \newlabel{eg-pi-zero-Z}{{5.13}{27}{}{theorem.5.13}{}}
-\newlabel{lem-cont-path}{{5.16}{27}{}{theorem.5.16}{}}
-\newlabel{prop-pi-zero-functor}{{5.17}{27}{}{theorem.5.17}{}}
+\newlabel{eg-GL-two}{{5.14}{27}{}{theorem.5.14}{}}
+\newlabel{prop-open-separation}{{5.15}{28}{}{theorem.5.15}{}}
+\newlabel{lem-cont-path}{{5.16}{28}{}{theorem.5.16}{}}
+\newlabel{prop-pi-zero-functor}{{5.17}{28}{}{theorem.5.17}{}}
 \newlabel{defn-pi-zero-abs}{{5.18}{28}{}{theorem.5.18}{}}
 \newlabel{prop-pi-zero-abs}{{5.19}{28}{}{theorem.5.19}{}}
-\@writefile{toc}{\contentsline {section}{\tocsection {}{6}{Interlude on categories and functors}}{29}{section.6}}
+\@writefile{toc}{\contentsline {section}{\tocsection {}{6}{Interlude on categories and functors}}{29}{section.6}\protected@file@percent }
 \newlabel{sec-cat}{{6}{29}{Interlude on categories and functors}{section.6}{}}
-\newlabel{eg-group-cat}{{6.2}{29}{}{theorem.6.2}{}}
-\newlabel{rem-concrete}{{6.3}{29}{}{theorem.6.3}{}}
-\newlabel{eg-alg-cat}{{6.4}{29}{}{theorem.6.4}{}}
+\newlabel{defn-category}{{6.1}{29}{}{theorem.6.1}{}}
+\newlabel{eg-group-cat}{{6.2}{30}{}{theorem.6.2}{}}
+\newlabel{rem-concrete}{{6.3}{30}{}{theorem.6.3}{}}
+\newlabel{eg-alg-cat}{{6.4}{30}{}{theorem.6.4}{}}
 \newlabel{eg-metric-cat}{{6.5}{30}{}{theorem.6.5}{}}
 \newlabel{eg-top-cat}{{6.6}{30}{}{theorem.6.6}{}}
 \newlabel{eg-asc-cat}{{6.7}{30}{}{theorem.6.7}{}}
 \newlabel{defn-functor}{{6.8}{30}{}{theorem.6.8}{}}
-\newlabel{eg-pi-zero-functor}{{6.9}{30}{}{theorem.6.9}{}}
-\newlabel{eg-metric-top-functor}{{6.10}{30}{}{theorem.6.10}{}}
-\newlabel{eg-realisation-functor}{{6.11}{30}{}{theorem.6.11}{}}
-\newlabel{defn-commutator}{{6.12}{30}{}{theorem.6.12}{}}
+\newlabel{eg-pi-zero-functor}{{6.9}{31}{}{theorem.6.9}{}}
+\newlabel{eg-metric-top-functor}{{6.10}{31}{}{theorem.6.10}{}}
+\newlabel{eg-realisation-functor}{{6.11}{31}{}{theorem.6.11}{}}
+\newlabel{defn-commutator}{{6.12}{31}{}{theorem.6.12}{}}
 \newlabel{prop-derived-subgroup}{{6.13}{31}{}{theorem.6.13}{}}
 \newlabel{defn-abelianisation}{{6.14}{31}{}{theorem.6.14}{}}
 \newlabel{prop-abelianisation}{{6.15}{31}{}{theorem.6.15}{}}
-\newlabel{lem-derived-functor}{{6.16}{31}{}{theorem.6.16}{}}
-\newlabel{cor-ab-functor}{{6.17}{31}{}{theorem.6.17}{}}
+\newlabel{lem-derived-functor}{{6.16}{32}{}{theorem.6.16}{}}
+\newlabel{cor-ab-functor}{{6.17}{32}{}{theorem.6.17}{}}
+\newlabel{cor-ab-functor-ii}{{6.18}{32}{}{theorem.6.18}{}}
 \newlabel{defn-iso}{{6.19}{32}{}{theorem.6.19}{}}
-\newlabel{prop-functor-on-iso}{{6.24}{32}{}{theorem.6.24}{}}
+\newlabel{lem-inverse-unique}{{6.20}{32}{}{theorem.6.20}{}}
+\newlabel{eg-iso}{{6.21}{33}{}{theorem.6.21}{}}
+\newlabel{prop-iso-omni}{{6.22}{33}{}{theorem.6.22}{}}
+\newlabel{cor-iso-equiv}{{6.23}{33}{}{theorem.6.23}{}}
+\newlabel{prop-functor-on-iso}{{6.24}{33}{}{theorem.6.24}{}}
 \newlabel{cor-functor-on-iso}{{6.25}{33}{}{theorem.6.25}{}}
 \newlabel{defn-retract}{{6.26}{33}{}{theorem.6.26}{}}
 \newlabel{eg-group-prod-retract}{{6.27}{33}{}{theorem.6.27}{}}
 \newlabel{eg-sphere-retract}{{6.28}{33}{}{theorem.6.28}{}}
-\newlabel{eg-finset-retract}{{6.29}{33}{}{theorem.6.29}{}}
-\newlabel{prop-split-mon}{{6.30}{33}{}{theorem.6.30}{}}
-\newlabel{cor-not-retract}{{6.31}{33}{}{theorem.6.31}{}}
+\newlabel{eg-finset-retract}{{6.29}{34}{}{theorem.6.29}{}}
+\newlabel{prop-split-mon}{{6.30}{34}{}{theorem.6.30}{}}
+\newlabel{cor-not-retract}{{6.31}{34}{}{theorem.6.31}{}}
 \newlabel{prop-functor-retract}{{6.32}{34}{}{theorem.6.32}{}}
 \newlabel{prop-pi-zero-not-retract}{{6.33}{34}{}{theorem.6.33}{}}
-\@writefile{toc}{\contentsline {section}{\tocsection {}{7}{Cutting invariants}}{34}{section.7}}
+\@writefile{toc}{\contentsline {section}{\tocsection {}{7}{Cutting invariants}}{34}{section.7}\protected@file@percent }
 \newlabel{sec-cutting}{{7}{34}{Cutting invariants}{section.7}{}}
-\newlabel{defn-abcd}{{7.1}{34}{}{theorem.7.1}{}}
-\newlabel{lem-complement-homeo}{{7.2}{34}{}{theorem.7.2}{}}
+\newlabel{defn-abcd}{{7.1}{35}{}{theorem.7.1}{}}
+\newlabel{lem-complement-homeo}{{7.2}{35}{}{theorem.7.2}{}}
 \newlabel{prop-abcd-invariant}{{7.3}{35}{}{theorem.7.3}{}}
-\@writefile{toc}{\contentsline {section}{\tocsection {}{8}{Constructing new spaces}}{36}{section.8}}
-\newlabel{sec-constructions}{{8}{36}{Constructing new spaces}{section.8}{}}
-\newlabel{defn-coproduct}{{8.1}{36}{}{theorem.8.1}{}}
-\newlabel{rem-coproduct-subspace}{{8.2}{36}{}{theorem.8.2}{}}
-\newlabel{prop-from-coprod}{{8.3}{36}{}{theorem.8.3}{}}
-\newlabel{rem-coproduct}{{8.4}{36}{}{theorem.8.4}{}}
+\@writefile{toc}{\contentsline {section}{\tocsection {}{8}{Constructing new spaces}}{37}{section.8}\protected@file@percent }
+\newlabel{sec-constructions}{{8}{37}{Constructing new spaces}{section.8}{}}
+\newlabel{defn-coproduct}{{8.1}{37}{}{theorem.8.1}{}}
+\newlabel{rem-coproduct-subspace}{{8.2}{37}{}{theorem.8.2}{}}
+\newlabel{prop-from-coprod}{{8.3}{37}{}{theorem.8.3}{}}
+\newlabel{rem-coproduct}{{8.4}{37}{}{theorem.8.4}{}}
 \newlabel{prop-to-coproduct}{{8.5}{37}{}{theorem.8.5}{}}
 \newlabel{defn-prod-open}{{8.6}{37}{}{theorem.8.6}{}}
-\newlabel{lem-prod-open}{{8.8}{37}{}{theorem.8.8}{}}
-\newlabel{prop-prod}{{8.9}{37}{}{theorem.8.9}{}}
-\newlabel{lem-proj-cont}{{8.10}{37}{}{theorem.8.10}{}}
+\newlabel{lem-prod-open}{{8.8}{38}{}{theorem.8.8}{}}
+\newlabel{prop-prod}{{8.9}{38}{}{theorem.8.9}{}}
+\newlabel{lem-proj-cont}{{8.10}{38}{}{theorem.8.10}{}}
 \newlabel{prop-to-prod}{{8.11}{38}{}{theorem.8.11}{}}
-\newlabel{rem-product}{{8.12}{38}{}{theorem.8.12}{}}
-\newlabel{defn-equiv}{{8.13}{38}{}{theorem.8.13}{}}
-\newlabel{defn-saturated}{{8.14}{38}{}{theorem.8.14}{}}
-\newlabel{prop-from-quot}{{8.15}{38}{}{theorem.8.15}{}}
+\newlabel{rem-product}{{8.12}{39}{}{theorem.8.12}{}}
+\newlabel{defn-equiv}{{8.13}{39}{}{theorem.8.13}{}}
+\newlabel{defn-saturated}{{8.14}{39}{}{theorem.8.14}{}}
+\newlabel{prop-from-quot}{{8.15}{39}{}{theorem.8.15}{}}
 \newlabel{cor-from-quot}{{8.16}{39}{}{theorem.8.16}{}}
-\newlabel{defn-quot-top}{{8.17}{39}{}{theorem.8.17}{}}
-\newlabel{prop-quot-top}{{8.18}{39}{}{theorem.8.18}{}}
-\newlabel{prop-from-quot-top}{{8.19}{39}{}{theorem.8.19}{}}
-\newlabel{cor-from-quot-top}{{8.20}{39}{}{theorem.8.20}{}}
-\newlabel{rem-coeq}{{8.21}{39}{}{theorem.8.21}{}}
-\newlabel{eg-projective}{{8.22}{39}{}{theorem.8.22}{}}
+\newlabel{defn-quot-top}{{8.17}{40}{}{theorem.8.17}{}}
+\newlabel{prop-quot-top}{{8.18}{40}{}{theorem.8.18}{}}
+\newlabel{prop-from-quot-top}{{8.19}{40}{}{theorem.8.19}{}}
+\newlabel{cor-from-quot-top}{{8.20}{40}{}{theorem.8.20}{}}
+\newlabel{rem-coeq}{{8.21}{40}{}{theorem.8.21}{}}
+\newlabel{eg-projective}{{8.22}{40}{}{theorem.8.22}{}}
 \newlabel{eg-projective-one}{{8.23}{40}{}{theorem.8.23}{}}
-\newlabel{eg-two-discs}{{8.24}{40}{}{theorem.8.24}{}}
+\newlabel{eg-two-discs}{{8.24}{41}{}{theorem.8.24}{}}
 \newlabel{eg-octagon}{{8.25}{41}{}{theorem.8.25}{}}
-\newlabel{eg-quot-torus}{{8.26}{41}{}{theorem.8.26}{}}
+\newlabel{eg-quot-torus}{{8.26}{42}{}{theorem.8.26}{}}
 \newlabel{eg-doubled-line}{{8.27}{42}{}{theorem.8.27}{}}
 \newlabel{rem-mapping-space}{{8.28}{42}{}{theorem.8.28}{}}
-\newlabel{prop-pi-zero-coprod}{{8.29}{42}{}{theorem.8.29}{}}
-\newlabel{prop-pi-zero-prod}{{8.30}{42}{}{theorem.8.30}{}}
-\@writefile{toc}{\contentsline {section}{\tocsection {}{9}{The Hausdorff property, and compactness}}{42}{section.9}}
-\newlabel{sec-top-props}{{9}{42}{The Hausdorff property, and compactness}{section.9}{}}
+\newlabel{prop-pi-zero-coprod}{{8.29}{43}{}{theorem.8.29}{}}
+\newlabel{prop-pi-zero-prod}{{8.30}{43}{}{theorem.8.30}{}}
+\@writefile{toc}{\contentsline {section}{\tocsection {}{9}{The Hausdorff property, and compactness}}{43}{section.9}\protected@file@percent }
+\newlabel{sec-top-props}{{9}{43}{The Hausdorff property, and compactness}{section.9}{}}
 \newlabel{defn-hausdorff}{{9.1}{43}{}{theorem.9.1}{}}
 \newlabel{eg-metric-hausdorff}{{9.2}{43}{}{theorem.9.2}{}}
-\newlabel{eg-indiscrete-not-hausdorff}{{9.3}{43}{}{theorem.9.3}{}}
-\newlabel{eg-sierpinski}{{9.4}{43}{}{theorem.9.4}{}}
-\newlabel{eg-doubled-line-not-hausdorff}{{9.5}{43}{}{theorem.9.5}{}}
-\newlabel{prop-subspace-hausdorff}{{9.6}{43}{}{theorem.9.6}{}}
+\newlabel{eg-indiscrete-not-hausdorff}{{9.3}{44}{}{theorem.9.3}{}}
+\newlabel{eg-sierpinski}{{9.4}{44}{}{theorem.9.4}{}}
+\newlabel{eg-doubled-line-not-hausdorff}{{9.5}{44}{}{theorem.9.5}{}}
+\newlabel{prop-subspace-hausdorff}{{9.6}{44}{}{theorem.9.6}{}}
 \newlabel{prop-coprod-hausdorff}{{9.7}{44}{}{theorem.9.7}{}}
-\newlabel{prop-prod-hausdorff}{{9.8}{44}{}{theorem.9.8}{}}
+\newlabel{prop-prod-hausdorff}{{9.8}{45}{}{theorem.9.8}{}}
 \newlabel{defn-compact}{{9.9}{45}{}{theorem.9.9}{}}
 \newlabel{eg-R-not-compact}{{9.10}{45}{}{theorem.9.10}{}}
-\newlabel{eg-interval-not-compact}{{9.11}{45}{}{theorem.9.11}{}}
-\newlabel{defn-bounded}{{9.12}{45}{}{theorem.9.12}{}}
-\newlabel{lem-finite-compact}{{9.13}{45}{}{theorem.9.13}{}}
-\newlabel{prop-Rn-compact}{{9.14}{45}{}{theorem.9.14}{}}
+\newlabel{eg-interval-not-compact}{{9.11}{46}{}{theorem.9.11}{}}
+\newlabel{defn-bounded}{{9.12}{46}{}{theorem.9.12}{}}
+\newlabel{lem-finite-compact}{{9.13}{46}{}{theorem.9.13}{}}
+\newlabel{prop-Rn-compact}{{9.14}{46}{}{theorem.9.14}{}}
 \newlabel{eg-compact-examples}{{9.15}{46}{}{theorem.9.15}{}}
 \newlabel{eg-On-compact}{{9.16}{46}{}{theorem.9.16}{}}
 \newlabel{prop-subspace-compact}{{9.17}{46}{}{theorem.9.17}{}}
 \newlabel{prop-compact-closed}{{9.18}{46}{}{theorem.9.18}{}}
-\newlabel{cor-compact-closed}{{9.19}{46}{}{theorem.9.19}{}}
-\newlabel{prop-image-compact}{{9.20}{46}{}{theorem.9.20}{}}
-\newlabel{cor-quot-compact}{{9.21}{46}{}{theorem.9.21}{}}
+\newlabel{cor-compact-closed}{{9.19}{47}{}{theorem.9.19}{}}
+\newlabel{prop-image-compact}{{9.20}{47}{}{theorem.9.20}{}}
+\newlabel{cor-quot-compact}{{9.21}{47}{}{theorem.9.21}{}}
 \newlabel{eg-projective-compact}{{9.22}{47}{}{theorem.9.22}{}}
 \newlabel{eg-simp-compact}{{9.23}{47}{}{theorem.9.23}{}}
 \newlabel{prop-coprod-compact}{{9.24}{47}{}{theorem.9.24}{}}
@@ -211,42 +229,46 @@
 \newlabel{eg-quot-torus-finish}{{9.30}{48}{}{theorem.9.30}{}}
 \newlabel{defn-lebesgue}{{9.31}{48}{}{theorem.9.31}{}}
 \newlabel{prop-lebesgue}{{9.32}{48}{}{theorem.9.32}{}}
-\newlabel{defn-ostar}{{9.33}{48}{}{theorem.9.33}{}}
-\newlabel{prop-lebesgue-ostar}{{9.35}{48}{}{theorem.9.35}{}}
-\@writefile{toc}{\contentsline {section}{\tocsection {}{10}{Homotopy}}{49}{section.10}}
+\newlabel{defn-ostar}{{9.33}{49}{}{theorem.9.33}{}}
+\newlabel{rem-ostar}{{9.34}{49}{}{theorem.9.34}{}}
+\newlabel{prop-lebesgue-ostar}{{9.35}{49}{}{theorem.9.35}{}}
+\@writefile{toc}{\contentsline {section}{\tocsection {}{10}{Homotopy}}{49}{section.10}\protected@file@percent }
 \newlabel{sec-homotopy}{{10}{49}{Homotopy}{section.10}{}}
 \newlabel{defn-homotopy-bogus}{{10.1}{49}{Bogus}{theorem.10.1}{}}
+\newlabel{defn-homotopy}{{10.2}{49}{}{theorem.10.2}{}}
 \newlabel{prop-homotopic-equiv}{{10.3}{49}{}{theorem.10.3}{}}
-\newlabel{defn-homotopy-class}{{10.4}{49}{}{theorem.10.4}{}}
+\newlabel{defn-homotopy-class}{{10.4}{50}{}{theorem.10.4}{}}
 \newlabel{eg-winding}{{10.5}{50}{}{theorem.10.5}{}}
 \newlabel{eg-straight-homotopy}{{10.6}{50}{}{theorem.10.6}{}}
 \newlabel{defn-contiguous}{{10.7}{50}{}{theorem.10.7}{}}
-\newlabel{prop-contiguous}{{10.8}{50}{}{theorem.10.8}{}}
+\newlabel{prop-contiguous}{{10.8}{51}{}{theorem.10.8}{}}
 \newlabel{prop-comp-homotopy}{{10.9}{51}{}{theorem.10.9}{}}
 \newlabel{cor-class-composite}{{10.10}{51}{}{theorem.10.10}{}}
 \newlabel{defn-htop}{{10.11}{51}{}{theorem.10.11}{}}
-\newlabel{defn-he}{{10.12}{51}{}{theorem.10.12}{}}
-\newlabel{lem-homeo-he}{{10.13}{51}{}{theorem.10.13}{}}
-\newlabel{prop-sphere-he}{{10.14}{51}{}{theorem.10.14}{}}
+\newlabel{defn-he}{{10.12}{52}{}{theorem.10.12}{}}
+\newlabel{lem-homeo-he}{{10.13}{52}{}{theorem.10.13}{}}
+\newlabel{prop-sphere-he}{{10.14}{52}{}{theorem.10.14}{}}
 \newlabel{defn-contraction}{{10.15}{52}{}{theorem.10.15}{}}
 \newlabel{eg-convex-contractible}{{10.16}{52}{}{theorem.10.16}{}}
 \newlabel{eg-sphere-not-contractible}{{10.17}{52}{}{theorem.10.17}{}}
-\newlabel{defn-terminal-space}{{10.18}{52}{}{theorem.10.18}{}}
-\newlabel{prop-contractible-he}{{10.19}{52}{}{theorem.10.19}{}}
-\newlabel{rem-he-not-homeo}{{10.20}{52}{}{theorem.10.20}{}}
-\newlabel{prop-he-equiv}{{10.21}{52}{}{theorem.10.21}{}}
+\newlabel{defn-terminal-space}{{10.18}{53}{}{theorem.10.18}{}}
+\newlabel{prop-contractible-he}{{10.19}{53}{}{theorem.10.19}{}}
+\newlabel{rem-he-not-homeo}{{10.20}{53}{}{theorem.10.20}{}}
+\newlabel{prop-he-equiv}{{10.21}{53}{}{theorem.10.21}{}}
 \newlabel{prop-prod-he}{{10.22}{53}{}{theorem.10.22}{}}
 \newlabel{eg-circles}{{10.23}{53}{}{theorem.10.23}{}}
 \newlabel{defn-hty-retract}{{10.24}{54}{}{theorem.10.24}{}}
 \newlabel{eg-hty-retract}{{10.25}{54}{}{theorem.10.25}{}}
 \newlabel{prop-retract-contractible}{{10.26}{54}{}{theorem.10.26}{}}
-\newlabel{prop-pi-zero-homotopy}{{10.27}{54}{}{theorem.10.27}{}}
-\@writefile{toc}{\contentsline {section}{\tocsection {}{11}{The fundamental group}}{55}{section.11}}
+\newlabel{prop-pi-zero-homotopy}{{10.27}{55}{}{theorem.10.27}{}}
+\@writefile{toc}{\contentsline {section}{\tocsection {}{11}{The fundamental group}}{55}{section.11}\protected@file@percent }
 \newlabel{sec-pi-one}{{11}{55}{The fundamental group}{section.11}{}}
 \newlabel{defn-path-space}{{11.1}{55}{}{theorem.11.1}{}}
+\newlabel{defn-path-homotopy-bogus}{{11.2}{55}{Bogus}{theorem.11.2}{}}
 \newlabel{defn-path-homotopy}{{11.3}{55}{}{theorem.11.3}{}}
 \newlabel{rem-path-homotopy}{{11.4}{55}{}{theorem.11.4}{}}
 \newlabel{prop-path-homotopic-equiv}{{11.5}{55}{}{theorem.11.5}{}}
+\newlabel{defn-Pi}{{11.6}{56}{}{theorem.11.6}{}}
 \newlabel{eg-total-angle}{{11.7}{56}{}{theorem.11.7}{}}
 \newlabel{prop-ph-reverse}{{11.8}{56}{}{theorem.11.8}{}}
 \newlabel{prop-ph-join}{{11.9}{56}{}{theorem.11.9}{}}
@@ -260,22 +282,23 @@
 \newlabel{prop-change-basepoint}{{11.17}{58}{}{theorem.11.17}{}}
 \newlabel{lem-map-path-homotopy}{{11.18}{58}{}{theorem.11.18}{}}
 \newlabel{cor-map-path-class}{{11.19}{59}{}{theorem.11.19}{}}
+\newlabel{cor-pi-one-hom}{{11.20}{59}{}{theorem.11.20}{}}
 \newlabel{prop-pi-one-prod}{{11.21}{59}{}{theorem.11.21}{}}
 \newlabel{defn-hty-nat-trans}{{11.22}{59}{}{theorem.11.22}{}}
-\newlabel{lem-hty-nat-trans}{{11.23}{59}{}{theorem.11.23}{}}
+\newlabel{lem-hty-nat-trans}{{11.23}{60}{}{theorem.11.23}{}}
 \newlabel{cor-pi-one-iso}{{11.25}{60}{}{theorem.11.25}{}}
 \newlabel{prop-pi-one-iso}{{11.26}{61}{}{theorem.11.26}{}}
 \newlabel{lem-group-iso}{{11.27}{61}{}{theorem.11.27}{}}
 \newlabel{prop-pi-one-retraction}{{11.28}{61}{}{theorem.11.28}{}}
-\newlabel{defn-simp-conn}{{11.29}{61}{}{theorem.11.29}{}}
-\newlabel{eg-singleton-simp-conn}{{11.30}{61}{}{theorem.11.30}{}}
+\newlabel{defn-simp-conn}{{11.29}{62}{}{theorem.11.29}{}}
+\newlabel{eg-singleton-simp-conn}{{11.30}{62}{}{theorem.11.30}{}}
 \newlabel{eg-convex-simp-conn}{{11.31}{62}{}{theorem.11.31}{}}
 \newlabel{prop-simp-conn}{{11.32}{62}{}{theorem.11.32}{}}
 \newlabel{prop-simp-conn-retract}{{11.33}{62}{}{theorem.11.33}{}}
 \newlabel{cor-simp-conn-he}{{11.34}{62}{}{theorem.11.34}{}}
-\newlabel{cor-contr-simp-conn}{{11.35}{62}{}{theorem.11.35}{}}
+\newlabel{cor-contr-simp-conn}{{11.35}{63}{}{theorem.11.35}{}}
 \newlabel{eg-sphere-simp-conn}{{11.36}{63}{}{theorem.11.36}{}}
-\@writefile{toc}{\contentsline {section}{\tocsection {}{12}{Covering maps}}{63}{section.12}}
+\@writefile{toc}{\contentsline {section}{\tocsection {}{12}{Covering maps}}{63}{section.12}\protected@file@percent }
 \newlabel{sec-coverings}{{12}{63}{Covering maps}{section.12}{}}
 \newlabel{eg-exp-covering}{{12.1}{63}{}{theorem.12.1}{}}
 \newlabel{defn-covering}{{12.2}{64}{}{theorem.12.2}{}}
@@ -296,7 +319,7 @@
 \newlabel{lem-total-angle}{{12.17}{68}{}{theorem.12.17}{}}
 \newlabel{prop-pi-one-circle}{{12.18}{68}{}{theorem.12.18}{}}
 \newlabel{cor-pi-one-torus}{{12.19}{68}{}{theorem.12.19}{}}
-\@writefile{toc}{\contentsline {section}{\tocsection {}{13}{Applications of the fundamental group}}{69}{section.13}}
+\@writefile{toc}{\contentsline {section}{\tocsection {}{13}{Applications of the fundamental group}}{69}{section.13}\protected@file@percent }
 \newlabel{sec-pi-one-app}{{13}{69}{Applications of the fundamental group}{section.13}{}}
 \newlabel{thm-inv-dom}{{13.1}{69}{Invariance of Domain}{theorem.13.1}{}}
 \newlabel{thm-brouwer}{{13.2}{69}{Brouwer Fixed Point Theorem}{theorem.13.2}{}}
@@ -305,12 +328,13 @@
 \newlabel{defn-antipodal}{{13.6}{70}{}{theorem.13.6}{}}
 \newlabel{thm-borsuk}{{13.7}{70}{Borsuk-Ulam Theorem}{theorem.13.7}{}}
 \newlabel{lem-half-loop}{{13.8}{70}{}{theorem.13.8}{}}
+\newlabel{lem-antipodal}{{13.9}{71}{}{theorem.13.9}{}}
 \newlabel{cor-antipodes}{{13.10}{71}{}{theorem.13.10}{}}
 \newlabel{eg-antipodes}{{13.11}{71}{}{theorem.13.11}{}}
 \newlabel{thm-sandwich}{{13.12}{71}{Sandwich Slicing Theorem}{theorem.13.12}{}}
 \newlabel{eg-sandwich}{{13.13}{71}{}{theorem.13.13}{}}
 \newlabel{eg-sandwich-balls}{{13.14}{71}{}{theorem.13.14}{}}
-\@writefile{toc}{\contentsline {section}{\tocsection {}{14}{Neighbourhoods of subcomplexes}}{72}{section.14}}
+\@writefile{toc}{\contentsline {section}{\tocsection {}{14}{Neighbourhoods of subcomplexes}}{72}{section.14}\protected@file@percent }
 \newlabel{sec-reg-nbhd}{{14}{72}{Neighbourhoods of subcomplexes}{section.14}{}}
 \newlabel{defn-supp-ep}{{14.1}{72}{}{theorem.14.1}{}}
 \newlabel{defn-nu-rho}{{14.2}{73}{}{theorem.14.2}{}}
@@ -318,8 +342,8 @@
 \newlabel{defn-tht-ep}{{14.4}{73}{}{theorem.14.4}{}}
 \newlabel{lem-tht-ep}{{14.5}{73}{}{theorem.14.5}{}}
 \newlabel{prop-reg-nbhd}{{14.6}{73}{}{theorem.14.6}{}}
-\newlabel{rem-nbhd-cup-cap}{{14.7}{73}{}{theorem.14.7}{}}
-\@writefile{toc}{\contentsline {section}{\tocsection {}{15}{The van Kampen theorem}}{74}{section.15}}
+\newlabel{rem-nbhd-cup-cap}{{14.7}{74}{}{theorem.14.7}{}}
+\@writefile{toc}{\contentsline {section}{\tocsection {}{15}{The van Kampen theorem}}{74}{section.15}\protected@file@percent }
 \newlabel{sec-vk}{{15}{74}{The van Kampen theorem}{section.15}{}}
 \newlabel{cons-words}{{15.1}{74}{}{theorem.15.1}{}}
 \newlabel{rem-words}{{15.2}{74}{}{theorem.15.2}{}}
@@ -339,6 +363,7 @@
 \newlabel{prop-pushout}{{15.16}{77}{}{theorem.15.16}{}}
 \newlabel{thm-vk}{{15.17}{78}{}{theorem.15.17}{}}
 \newlabel{rem-vk-nbhd}{{15.18}{78}{}{theorem.15.18}{}}
+\newlabel{rem-vk-connectivity}{{15.19}{78}{}{theorem.15.19}{}}
 \newlabel{cor-vk-wedge}{{15.20}{78}{}{theorem.15.20}{}}
 \newlabel{cor-pi-one-cone}{{15.21}{78}{}{theorem.15.21}{}}
 \newlabel{eg-pi-one-bouquet-b}{{15.22}{79}{}{theorem.15.22}{}}
@@ -348,30 +373,37 @@
 \newlabel{rem-vk-torus}{{15.26}{80}{}{theorem.15.26}{}}
 \newlabel{eg-vk-proj}{{15.27}{80}{}{theorem.15.27}{}}
 \newlabel{eg-pi-one-surface}{{15.28}{81}{}{theorem.15.28}{}}
+\newlabel{cons-base-paths}{{15.29}{82}{}{theorem.15.29}{}}
 \newlabel{lem-vk}{{15.30}{82}{}{theorem.15.30}{}}
 \newlabel{cor-vk}{{15.31}{82}{}{theorem.15.31}{}}
-\@writefile{toc}{\contentsline {section}{\tocsection {}{16}{Abelian groups}}{83}{section.16}}
+\newlabel{rem-tht-inj}{{15.32}{83}{}{theorem.15.32}{}}
+\@writefile{toc}{\contentsline {section}{\tocsection {}{16}{Abelian groups}}{83}{section.16}\protected@file@percent }
 \newlabel{sec-abelian}{{16}{83}{Abelian groups}{section.16}{}}
+\newlabel{lem-cyclic-hom}{{16.1}{83}{}{theorem.16.1}{}}
 \newlabel{prop-chinese}{{16.2}{83}{}{theorem.16.2}{}}
 \newlabel{cor-chinese}{{16.3}{84}{}{theorem.16.3}{}}
 \newlabel{defn-fg}{{16.4}{84}{}{theorem.16.4}{}}
 \newlabel{eg-fg}{{16.5}{84}{}{theorem.16.5}{}}
 \newlabel{eg-poly-not-fg}{{16.6}{84}{}{theorem.16.6}{}}
+\newlabel{eg-rat-not-fg}{{16.7}{84}{}{theorem.16.7}{}}
 \newlabel{prop-noeth}{{16.8}{84}{}{theorem.16.8}{}}
 \newlabel{thm-fg-struct}{{16.9}{84}{}{theorem.16.9}{}}
 \newlabel{eg-smith}{{16.10}{84}{}{theorem.16.10}{}}
 \newlabel{eg-fg-classify}{{16.11}{85}{}{theorem.16.11}{}}
+\newlabel{defn-ZX}{{16.12}{85}{}{theorem.16.12}{}}
 \newlabel{defn-exact}{{16.13}{85}{}{theorem.16.13}{}}
 \newlabel{rem-exact}{{16.14}{85}{}{theorem.16.14}{}}
+\newlabel{eg-short-exact}{{16.15}{85}{}{theorem.16.15}{}}
 \newlabel{prop-exact-omni}{{16.16}{85}{}{theorem.16.16}{}}
 \newlabel{defn-long-exact}{{16.17}{86}{}{theorem.16.17}{}}
 \newlabel{eg-short-long}{{16.18}{86}{}{theorem.16.18}{}}
 \newlabel{eg-double-exact}{{16.19}{86}{}{theorem.16.19}{}}
 \newlabel{lem-exact-iso}{{16.20}{86}{}{theorem.16.20}{}}
 \newlabel{lem-ses-order}{{16.21}{86}{}{theorem.16.21}{}}
-\@writefile{toc}{\contentsline {section}{\tocsection {}{17}{Chain complexes and homology}}{87}{section.17}}
+\@writefile{toc}{\contentsline {section}{\tocsection {}{17}{Chain complexes and homology}}{87}{section.17}\protected@file@percent }
 \newlabel{sec-chain}{{17}{87}{Chain complexes and homology}{section.17}{}}
 \newlabel{defn-chain-complex}{{17.1}{87}{}{theorem.17.1}{}}
+\newlabel{rem-star-notation}{{17.2}{87}{}{theorem.17.2}{}}
 \newlabel{rem-simp-chains}{{17.3}{87}{}{theorem.17.3}{}}
 \newlabel{rem-zero-homology}{{17.4}{87}{}{theorem.17.4}{}}
 \newlabel{eg-chain-zero}{{17.5}{87}{}{theorem.17.5}{}}
@@ -379,24 +411,34 @@
 \newlabel{eg-ring-homology}{{17.7}{87}{}{theorem.17.7}{}}
 \newlabel{rem-compute-homology}{{17.8}{88}{}{theorem.17.8}{}}
 \newlabel{defn-chain-map}{{17.9}{88}{}{theorem.17.9}{}}
+\newlabel{defn-chain-map-comp}{{17.10}{88}{}{theorem.17.10}{}}
 \newlabel{prop-chain-functors}{{17.11}{88}{}{theorem.17.11}{}}
-\@writefile{toc}{\contentsline {section}{\tocsection {}{18}{The chain complex of a simplicial complex}}{89}{section.18}}
+\@writefile{toc}{\contentsline {section}{\tocsection {}{18}{The chain complex of a simplicial complex}}{89}{section.18}\protected@file@percent }
 \newlabel{sec-simp-chain}{{18}{89}{The chain complex of a simplicial complex}{section.18}{}}
+\newlabel{defn-chain-groups}{{18.1}{89}{}{theorem.18.1}{}}
 \newlabel{eg-one-chains}{{18.2}{89}{}{theorem.18.2}{}}
 \newlabel{eg-two-chain}{{18.3}{89}{}{theorem.18.3}{}}
+\newlabel{rem-chains-brief}{{18.4}{90}{}{theorem.18.4}{}}
 \newlabel{defn-diff}{{18.5}{90}{}{theorem.18.5}{}}
+\newlabel{rem-d-signs}{{18.6}{90}{}{theorem.18.6}{}}
 \newlabel{eg-simplex-boundary}{{18.7}{90}{}{theorem.18.7}{}}
 \newlabel{eg-annulus-homology}{{18.8}{91}{}{theorem.18.8}{}}
+\newlabel{eg-one-chain}{{18.9}{92}{}{theorem.18.9}{}}
+\newlabel{prop-dd-zero}{{18.10}{92}{}{theorem.18.10}{}}
+\newlabel{defn-homology}{{18.11}{92}{}{theorem.18.11}{}}
 \newlabel{eg-discrete-homology}{{18.12}{92}{}{theorem.18.12}{}}
 \newlabel{eg-H-polygon}{{18.13}{92}{}{theorem.18.13}{}}
+\newlabel{eg-H-misc}{{18.14}{93}{}{theorem.18.14}{}}
 \newlabel{thm-H-zero}{{18.15}{94}{}{theorem.18.15}{}}
 \newlabel{rem-natural}{{18.16}{94}{}{theorem.18.16}{}}
+\newlabel{rem-H-zero}{{18.17}{94}{}{theorem.18.17}{}}
 \newlabel{thm-H-one}{{18.18}{94}{}{theorem.18.18}{}}
 \newlabel{defn-homology-functor}{{18.19}{95}{}{theorem.18.19}{}}
 \newlabel{eg-H-functor}{{18.20}{95}{}{theorem.18.20}{}}
-\@writefile{toc}{\contentsline {section}{\tocsection {}{19}{Chain homotopy}}{95}{section.19}}
+\@writefile{toc}{\contentsline {section}{\tocsection {}{19}{Chain homotopy}}{95}{section.19}\protected@file@percent }
 \newlabel{sec-chain-homotopy}{{19}{95}{Chain homotopy}{section.19}{}}
 \newlabel{defn-chain-homotopy}{{19.1}{95}{}{theorem.19.1}{}}
+\newlabel{prop-chain-homotopy-equiv}{{19.2}{96}{}{theorem.19.2}{}}
 \newlabel{prop-comp-chain-homotopy}{{19.3}{96}{}{theorem.19.3}{}}
 \newlabel{prop-same-homology}{{19.4}{96}{}{theorem.19.4}{}}
 \newlabel{defn-cone-point}{{19.5}{96}{}{theorem.19.5}{}}
@@ -405,11 +447,11 @@
 \newlabel{prop-H-contiguous}{{19.8}{97}{}{theorem.19.8}{}}
 \newlabel{defn-direct-approx}{{19.9}{97}{}{theorem.19.9}{}}
 \newlabel{prop-direct-approx}{{19.10}{98}{}{theorem.19.10}{}}
-\newlabel{prop-direct-approx-H}{{19.11}{98}{}{theorem.19.11}{}}
-\newlabel{prop-approx-compose}{{19.12}{98}{}{theorem.19.12}{}}
+\newlabel{prop-approx-compose}{{19.11}{98}{}{theorem.19.11}{}}
+\newlabel{prop-direct-approx-H}{{19.12}{98}{}{theorem.19.12}{}}
 \newlabel{cor-approx-functor}{{19.13}{98}{}{theorem.19.13}{}}
 \newlabel{lem-approx-alt}{{19.14}{98}{}{theorem.19.14}{}}
-\@writefile{toc}{\contentsline {section}{\tocsection {}{20}{The Snake Lemma}}{99}{section.20}}
+\@writefile{toc}{\contentsline {section}{\tocsection {}{20}{The Snake Lemma}}{99}{section.20}\protected@file@percent }
 \newlabel{sec-snake}{{20}{99}{The Snake Lemma}{section.20}{}}
 \newlabel{prop-les-i}{{20.1}{99}{}{theorem.20.1}{}}
 \newlabel{thm-les}{{20.2}{100}{}{theorem.20.2}{}}
@@ -421,7 +463,8 @@
 \newlabel{prop-delta-i}{{20.9}{101}{}{theorem.20.9}{}}
 \newlabel{prop-sphere-homology}{{20.10}{101}{}{theorem.20.10}{}}
 \newlabel{rem-sphere-homology}{{20.11}{102}{}{theorem.20.11}{}}
-\@writefile{toc}{\contentsline {section}{\tocsection {}{21}{The Mayer-Vietoris Theorem}}{102}{section.21}}
+\newlabel{rem-sphere-generator}{{20.12}{102}{}{theorem.20.12}{}}
+\@writefile{toc}{\contentsline {section}{\tocsection {}{21}{The Mayer-Vietoris Theorem}}{102}{section.21}\protected@file@percent }
 \newlabel{sec-mv}{{21}{102}{The Mayer-Vietoris Theorem}{section.21}{}}
 \newlabel{thm-mv}{{21.1}{103}{Mayer-Vietoris}{theorem.21.1}{}}
 \newlabel{prop-mv-trunc}{{21.3}{103}{}{theorem.21.3}{}}
@@ -430,7 +473,7 @@
 \newlabel{eg-H-T}{{21.6}{104}{}{theorem.21.6}{}}
 \newlabel{rem-H-T}{{21.7}{105}{}{theorem.21.7}{}}
 \newlabel{rem-H-surface}{{21.8}{105}{}{theorem.21.8}{}}
-\@writefile{toc}{\contentsline {section}{\tocsection {}{22}{Subdivision}}{105}{section.22}}
+\@writefile{toc}{\contentsline {section}{\tocsection {}{22}{Subdivision}}{105}{section.22}\protected@file@percent }
 \newlabel{sec-subdiv}{{22}{105}{Subdivision}{section.22}{}}
 \newlabel{defn-sbd}{{22.1}{105}{}{theorem.22.1}{}}
 \newlabel{rem-sbd}{{22.2}{105}{}{theorem.22.2}{}}
@@ -442,23 +485,31 @@
 \newlabel{eg-mu}{{22.8}{107}{}{theorem.22.8}{}}
 \newlabel{eg-gm}{{22.9}{107}{}{theorem.22.9}{}}
 \newlabel{defn-gm}{{22.10}{108}{}{theorem.22.10}{}}
+\newlabel{prop-gm-chain-map}{{22.11}{108}{}{theorem.22.11}{}}
 \newlabel{prop-mu-gm}{{22.12}{109}{}{theorem.22.12}{}}
 \newlabel{prop-gm-mu}{{22.13}{109}{}{theorem.22.13}{}}
 \newlabel{prop-mu-qism}{{22.14}{109}{}{theorem.22.14}{}}
 \newlabel{defn-mesh}{{22.15}{110}{}{theorem.22.15}{}}
 \newlabel{rem-mesh}{{22.16}{110}{}{theorem.22.16}{}}
 \newlabel{rem-mesh-id}{{22.17}{110}{}{theorem.22.17}{}}
-\@writefile{toc}{\contentsline {section}{\tocsection {}{23}{Simplicial approximation}}{110}{section.23}}
+\newlabel{prop-mesh-bt}{{22.18}{110}{}{theorem.22.18}{}}
+\@writefile{toc}{\contentsline {section}{\tocsection {}{23}{Simplicial approximation}}{110}{section.23}\protected@file@percent }
 \newlabel{sec-approx}{{23}{110}{Simplicial approximation}{section.23}{}}
 \newlabel{defn-itdiv}{{23.1}{110}{}{theorem.23.1}{}}
 \newlabel{rem-itdiv}{{23.2}{110}{}{theorem.23.2}{}}
+\newlabel{defn-approx}{{23.3}{111}{}{theorem.23.3}{}}
 \newlabel{prop-approx-exists}{{23.4}{111}{}{theorem.23.4}{}}
 \newlabel{prop-approx-H}{{23.5}{111}{}{theorem.23.5}{}}
+\newlabel{prop-H-functor-approx}{{23.6}{111}{}{theorem.23.6}{}}
 \newlabel{prop-common-approx}{{23.7}{111}{}{theorem.23.7}{}}
 \newlabel{tocindent-1}{0pt}
 \newlabel{tocindent0}{0pt}
 \newlabel{tocindent1}{22.77783pt}
 \newlabel{tocindent2}{0pt}
 \newlabel{tocindent3}{0pt}
+\newlabel{prop-H-homotopy-functor}{{23.8}{112}{}{theorem.23.8}{}}
+\newlabel{cor-H-homotopy-functor}{{23.9}{112}{}{theorem.23.9}{}}
 \newlabel{cor-he-qism}{{23.10}{112}{}{theorem.23.10}{}}
 \newlabel{rem-sphere-homology-b}{{23.11}{112}{}{theorem.23.11}{}}
+\newlabel{rem-inv-dom}{{23.12}{112}{}{theorem.23.12}{}}
+\newlabel{rem-brouwer}{{23.13}{112}{}{theorem.23.13}{}}
