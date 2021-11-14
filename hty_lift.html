@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html>
+ <head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Homotopy lifting</title>
+  <style type="text/css" media="screen">
+   @import url(algtop_demo.css);
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js"> 
+   MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX","output/HTML-CSS"],
+    tex2jax: {inlineMath: [["$","$"]]}
+   });
+  </script> 
+  <script src="https://preview.babylonjs.com/babylon.js"></script>
+  <script src="algtop.js"></script>
+  <style>
+   html, body {
+       overflow: hidden;
+       width: 100%;
+       height: 100%;
+       margin: 0;
+       padding: 0;
+   }
+   
+   canvas {
+       width: 600px;
+       height: 600px;
+       touch-action: none;
+   }
+  </style>
+ </head>
+ <body>
+  <div id="control_div" style="position:absolute; left:50px; top:50px;">
+   <div class="control" style="width: 150px;" id="index" onclick="location='index.php'">Index</div>
+  </div>
+  <div style="text-align:center">
+   <div>
+    <svg width="600" height="600" id="main_svg"></svg>
+    <canvas id="main_canvas"></canvas>
+   </div>
+   <br/><br/>
+   <div id="text" style="width: 800px; margin: 0 auto; text-align:left">
+     This illustrates the process of lifting a homotopy $h\colon [0,1]^2\to Y$
+     over a covering map $p\colon X\to Y$.  We divide $[0,1]^2$ into
+     small rectangles $Q$ such that $h(Q)$ is contained in an open set
+     that is trivially covered by $p$.  We then work through all these
+     rectangles in a series of stripes, lifting $h$ over each
+     rectangle in turn.  For each rectangle $Q$, there are an infinite
+     number of possible lifts of $h|_Q$.  At the first stage, we can
+     choose any one of those lifts.  At every subsequenct stage, there
+     is only one possible lift that matches up with what we have
+     already done.
+   </div>
+  </div>
+ <script>
+
+  var demo = {};
+
+  demo.hu = function(s,t) { return 1 - 0.4 * t; }
+  
+  demo.hv = function(s,t) {
+   return (1-s) * (0.5 + 0.25 * Math.cos(Math.PI*t/4) + 0.2 * Math.sin(3*Math.PI*t)) +
+             s  * (0.5 - 0.20 * Math.cos(Math.PI*t/4));
+  }
+
+  demo.huv = function(s,t) {
+   return [this.hu(s,t), this.hv(s,t)];
+  }
+  
+  demo.init = function() {
+   var i,j,s,t;
+   
+   var me = this;
+   
+   this.svg = document.getElementById("main_svg");
+   this.svg.setAttribute('viewBox','-2.5 -2.5 5.0 5.0');
+
+   this.annulus = {};
+   this.annulus.r = 1;
+   this.annulus.w = 1;
+   
+   this.annulus.embedding = function(t,u) {
+    var t1 = 2 * Math.PI * t;
+    var r0 = this.r + u * this.w;
+    return [r0 * Math.cos(t1), r0 * Math.sin(t1)];
+   }
+
+   this.annulus.big_disc     = algtop.svg.disc(0.0,0.0,this.annulus.r + this.annulus.w,'#8080FF');
+   this.annulus.small_disc   = algtop.svg.disc(0.0,0.0,this.annulus.r,'#FFFFFF');
+   
+   this.svg.appendChild(this.annulus.big_disc);
+   this.svg.appendChild(this.annulus.small_disc);
+
+   var uv0 = this.huv(0,0);
+   var uv1 = this.huv(1,1);
+   var xy0 = this.annulus.embedding(uv0[0],uv0[1]);
+   var xy1 = this.annulus.embedding(uv1[0],uv1[1]);
+
+   this.canvas = document.getElementById("main_canvas");
+   this.engine =
+     new BABYLON.Engine(this.canvas, true, { preserveDrawingBuffer: true, stencil: true });
+
+   this.scene = algtop.basic_scene(this.engine,this.canvas);
+
+   this.spiral = Object.create(algtop.surface);
+   this.spiral.n = 256;   
+   this.spiral.m = 256;
+   this.spiral.r = 1.5;
+   this.spiral.w = 1.5;
+   this.spiral.h = 0.8;
+   this.spiral.p = 6;
+
+   // Sends [0,1] x [0,1] to a single loop of the spiral
+   this.spiral.embedding0 = function(t,u) {
+    var t1 = 2 * Math.PI * t;
+    var r0 = this.r + u * this.w;
+    return [r0 * Math.sin(t1), - this.h * t, r0 * Math.cos(t1)];
+   }
+   
+   // Sends [0,1] x [0,1] to the full spiral
+   this.spiral.embedding = function(t,u) {
+    return this.embedding0(this.p * (t - 0.5), u);
+   }
+
+   this.spiral.make_mesh(this.scene);
+   this.spiral.mesh.material.alpha = 0.5;
+
+   this.ns = 8;
+   this.nt = 12;
+   this.m = 10;
+   this.k = 2;
+
+   this.squares = {};
+   this.squares_list = [];
+   
+   for (i = 0; i < this.ns; i++) {
+    this.squares[i] = {};
+    for (j = 0; j < this.nt; j++) {
+     var s = {};
+     this.squares[i][j] = s;
+     this.squares_list.push(s);
+     
+     s.lifts = {};
+     s.svg = algtop.svg.node('path');
+     s.svg.i = i; s.svg.j = j;
+     s.svg.setAttribute('stroke-width',0.005);
+     s.svg.setAttribute('stroke','#888888');
+     s.svg.setAttribute('fill','#FF9933');
+
+     s.svg.embedding = function(x,y) {
+      var s0 = (this.i + x) / me.ns;
+      var t0 = (this.j + y) / me.nt;
+      var w0 = me.huv(s0,t0);
+      return me.annulus.embedding(w0[0],w0[1]);
+     }
+
+     var p = [];
+     for(k = 0; k < this.m; k++) { p.push(s.svg.embedding(k/this.m,0)); }
+     for(k = 0; k < this.m; k++) { p.push(s.svg.embedding(1,k/this.m)); }
+     for(k = 0; k < this.m; k++) { p.push(s.svg.embedding(1-k/this.m,1)); }
+     for(k = 0; k < this.m; k++) { p.push(s.svg.embedding(0,1-k/this.m)); }
+     s.svg.setAttribute('d',algtop.svg.points_string(p));
+     this.svg.appendChild(s.svg);
+     
+     for (k = -3; k <= 1; k++) {
+      s.lifts[k] = {};
+      for (e = 0; e < 2; e++) {
+       var l = Object.create(algtop.surface);
+       s.lifts[k][e] = l;
+       l.i = i; l.j = j; l.k = k; l.e = e; 
+       l.embedding = function(x,y) {
+	var s0 = (this.i + x) / me.ns;
+	var t0 = (this.j + y) / me.nt;
+	var w0 = me.huv(s0,t0);
+	var x0 = me.spiral.embedding0(w0[0] + this.k,w0[1]);
+	var y0 = 0.01 * (2 * this.e - 1);
+	return [x0[0],x0[1] + y0, x0[2]];
+       }
+       l.make_mesh(this.scene);
+       if (k == 0) {
+	algtop.set_colour(l.mesh,1,0.56,0.19);
+       } else {
+	algtop.set_colour(l.mesh,1,0.1,0.1);
+       }
+      }
+     }
+    }
+
+    this.last_stage = this.squares_list.length + 2;
+   }
+
+   this.set_stage(0);
+   
+   this.svg.onwheel = function(e) {
+    me.handle_wheel(e);
+   }
+
+   window.onkeydown = function(e) {
+    
+    if (e.key == 'ArrowRight' || e.key == 'ArrowDown') {
+     me.set_stage(me.s + 1);
+    } else if (e.key == 'ArrowLeft' || e.key == 'ArrowUp') {
+     me.set_stage(me.s - 1);
+    } else {
+     return(false);
+    }
+   }
+
+   this.engine.runRenderLoop(function () {
+    if (me.scene) {
+     me.scene.render();
+    }
+   });
+
+   window.addEventListener("resize", function () {
+    me.engine.resize();
+   });
+
+  }
+
+  demo.handle_wheel = function(e) {
+   var z = (e.deltaY > 0) ? 1 : -1;
+
+   this.set_stage(this.s + z);
+  }
+
+  demo.set_stage = function(i) {
+   
+   this.s = Math.max(0,Math.min(i,this.last_stage));
+
+   if (this.s == 0) {
+    for (j in this.squares_list) {
+     var s = this.squares_list[j];
+     s.svg.setAttribute('opacity',1);
+     for (k in s.lifts) {
+      for (e = 0; e < 2; e++) {
+       s.lifts[k][e].mesh.material.alpha = 0;
+      }
+     }
+    }
+    return;
+   }
+
+   var i0 = this.s - 1;
+   
+   for (j in this.squares_list) {
+    var s = this.squares_list[j];
+
+    s.svg.setAttribute('opacity',j <= i0 ? 1 : 0.1);
+
+    for (k in s.lifts) {
+     if (j < i0) {
+      a = (k == 0) ? 1 : 0;
+     } else if (j == i0) {
+      a = 1;
+     } else {
+      a = 0;
+     } 
+     for (e = 0; e < 2; e++) {
+      s.lifts[k][e].mesh.material.alpha = a;
+     }
+    }
+   }
+  }
+  
+  demo.init();
+ </script>
+</body>
+</html>
