@@ -242,6 +242,46 @@ algtop.mobius_normal = function(t,u) {
 }
 
 /***********************************************************************/
+
+algtop.boys = Object.create(algtop.surface);
+
+algtop.boys.coeffs =
+ [[0.19841, 0, 0, 0.13226, 0.31036, 0, 0, 0.05120, 0.03890],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, -0.60213, -0.37851, 0, 0, -0.00688, 0.15039, 0, 0],
+  [0.30612, 0, 0, -0.25597, -0.26741, 0, 0, -0.06826, -0.05186],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, -0.13195, -0.06075, 0, 0, 0.00344, -0.07520, 0, 0],
+  [0.07282, 0, 0, 0.12371, -0.04294, 0, 0, 0.01706, 0.01297]];
+
+algtop.boys.embedding0 = function(t,u) {
+ var t0 = Math.PI * t / 2;
+ var u0 = Math.PI * u * 2; 
+ var Bt = [1,Math.sin(t0),Math.cos(t0),Math.sin(2*t0),Math.cos(2*t0),
+	   Math.sin(3*t0),Math.cos(3*t0),Math.sin(4*t0),Math.cos(4*t0)];
+ var Bu = [1,Math.sin(u0),Math.cos(u0),Math.sin(2*u0),Math.cos(2*u0),
+	   Math.sin(3*u0),Math.cos(3*u0),Math.sin(4*u0),Math.cos(4*u0)];
+
+ var v = 0;
+ for (var i = 0; i < 9; i++) {
+  for (var j = 0; j < 9; j++) {
+   v += this.coeffs[i][j] * Bt[i] * Bu[j];
+  }
+ }
+
+ return v;
+}
+
+algtop.boys.embedding = function(t,u) {
+ return [
+  this.embedding0(t,u),
+  this.embedding0(t,u+1/3),
+  this.embedding0(t,u+2/3)
+ ];
+}
+
+/***********************************************************************/
 algtop.klein = Object.create(algtop.surface);
 algtop.klein.a = 0.4;
 algtop.klein.b = 0.6;
