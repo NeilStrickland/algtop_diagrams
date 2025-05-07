@@ -228,7 +228,7 @@ algtop.mobius.embedding = function(t,u) {
 	 (this.R + this.r * u * c2) * s4];
 };
 
-algtop.mobius_normal = function(t,u) {
+algtop.mobius.normal = function(t,u) {
  var c = Math.cos(2 * Math.PI * t);
  var s = Math.sin(2 * Math.PI * t);
  var r = this.r;

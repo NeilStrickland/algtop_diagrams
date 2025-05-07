@@ -1,6 +1,6 @@
 <?php
 
-require_once('../MAS435.php'); 
+require_once('../MAS61015.php'); 
 $labels = $course->parse_aux_labels();
 $keys = $course->parse_youtube_keys();
 
@@ -20,7 +20,7 @@ $demos_json = <<<JSON
  ["tri_square","The triangle and the square",["sec-intro"]],
  ["skeleta","Skeleta of simplices",["sec-intro"]],
  ["open","Open sets",["defn-metric-open"]],
- ["fem","Finite element model",["rem-fem"]],
+ ["fem","Finite element model",[]],
  ["annulus","A cylinder is homeomorphic to an annulus",["eg-radial"]],
  ["stereo","Stereographic projection",["eg-stereo"]],
  ["RP1_eq_S1","\$\\\\mathbb{R}P^1\$ is homeomorphic to \$S^1\$",["eg-projective-one"]],
@@ -32,16 +32,16 @@ $demos_json = <<<JSON
  ["mobius_homotopy","The Möbius strip and the circle",["eg-circles"]],
  ["R2_minus_0","The punctured plane",["eg-circles"]],
  ["S2_minus_1","The punctured sphere",[]],
- ["T_minus_1","The punctured torus",["rem-vk-torus"]],
- ["mobius_wrap","Wrapping an annulus",["eg-vk-proj"]],
+ ["T_minus_1","The punctured torus",["prop-mv-torus"]],
+ ["mobius_wrap","Wrapping an annulus",[]],
  ["exp","The exponential map",[]],
  ["exp_cover","The exponential map is a covering",["prop-exp-covering"]],
  ["exp_lift","Path lifting",["prop-path-lifting"]],
- ["hty_lift","Homotopy lifting",["prop-homotopy-lifting"]],
- ["prism_subdiv","Subdivision of a prism \$[0,1]\\\\times\\\\Delta_2\$",[]],
- ["tetra_bdy","Boundary of a tetrahedron",["eg-simplex-boundary"]],
- ["tetra_subdiv","Barycentric subdivision of a tetrahedron",["eg-simplex-subdiv"]],
- ["mu","The map \$\\\\mu\\\\colon|K'|\\\\to|K|\$",["eg-mu"]]
+ ["hty_lift","Homotopy lifting",[]],
+ ["prism_subdiv","Subdivision of a prism \$[0,1]\\\\times\\\\Delta_2\$",["sec-subdiv"]],
+ ["tetra_bdy","Boundary of a tetrahedron",["eg-simplex-delta"]],
+ ["tetra_subdiv","Barycentric subdivision of a tetrahedron",["sec-subdiv"]],
+ ["mu","The map \$\\\\mu\\\\colon|K'|\\\\to|K|\$",[]]
 ]
 JSON;
 

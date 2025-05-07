@@ -22,7 +22,7 @@
   <script src="https://preview.babylonjs.com/loaders/babylonjs.loaders.js"></script>
   <script src="https://preview.babylonjs.com/serializers/babylonjs.serializers.min.js"></script>
   <script src="https://preview.babylonjs.com/gui/babylon.gui.min.js"></script>
-  <script src="algtop.js"></script>
+  <script src="../algtop.js"></script>
   <style>
    html, body {
        overflow: hidden;
@@ -58,8 +58,8 @@
     for (j = 0; j <= m; j++) {
      t = (i * 1.)/(2 * n);
      u = 2 * (j * 1.)/m - 1;
-     x = algtop.mobius_embedding(R,r,t,u);
-     v = algtop.mobius_normal(R,r,t,u);
+     x = algtop.mobius.embedding(t,u);
+     v = algtop.mobius.normal(t,u);
      positions.push(x[0],x[1],x[2]);
      normals.push(v[0],v[1],v[2]);
      if (i < n && j < m) {
@@ -82,7 +82,7 @@
    n = 48;
    positions = [];
    for (i = 0; i <= n; i++) {
-    x = algtop.mobius_embedding(2,0.6,(i * 1.)/(2*n),0);
+    x = algtop.mobius.embedding((i * 1.)/(2*n),0);
     y = new BABYLON.Vector3(x[0],x[1],x[2]);
     positions.push(y);
    }
@@ -95,7 +95,7 @@
    n = 128;
    positions = [];
    for (i = 0; i <= n; i++) {
-    x = algtop.mobius_embedding(2,0.6,(i * 1.)/n,1);
+    x = algtop.mobius.embedding((i * 1.)/n,1);
     y = new BABYLON.Vector3(x[0],x[1],x[2]);
     positions.push(y);
    }

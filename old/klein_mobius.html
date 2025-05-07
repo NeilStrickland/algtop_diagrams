@@ -22,7 +22,7 @@
   <script src="https://preview.babylonjs.com/loaders/babylonjs.loaders.js"></script>
   <script src="https://preview.babylonjs.com/serializers/babylonjs.serializers.min.js"></script>
   <script src="https://preview.babylonjs.com/gui/babylon.gui.min.js"></script>
-  <script src="algtop.js"></script>
+  <script src="../algtop.js"></script>
   <style>
    html, body {
        overflow: hidden;
@@ -60,7 +60,7 @@
    this.n = 128;
    this.m = 32;
 
-   this.f = function(t,u) { return algtop.klein_embedding(me.a, me.b, me.c, t, u); }
+   this.f = function(t,u) { return algtop.klein.embedding(t, u); }
    this.f_a = function(t,u) { return me.f(t,t + 0.5*u); }
    this.f_b = function(t,u) { return me.f(t,t - 0.5*u); }
    

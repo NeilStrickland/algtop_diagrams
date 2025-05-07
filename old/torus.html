@@ -22,7 +22,7 @@
   <script src="https://preview.babylonjs.com/loaders/babylonjs.loaders.js"></script>
   <script src="https://preview.babylonjs.com/serializers/babylonjs.serializers.min.js"></script>
   <script src="https://preview.babylonjs.com/gui/babylon.gui.min.js"></script>
-  <script src="algtop.js"></script>
+  <script src="../algtop.js"></script>
   <style>
    html, body {
        overflow: hidden;
@@ -53,8 +53,8 @@
 
    for (i = 0; i < n; i++) {
     for (j = 0; j < n; j++) {
-     x = algtop.torus_embedding(2,1,(i * 1.)/n,(j * 1.)/n,1);
-     u = algtop.torus_normal(2,1,(i * 1.)/n,(j * 1.)/n,1);
+     x = algtop.torus.embedding((i * 1.)/n,(j * 1.)/n,1);
+     u = algtop.torus.normal((i * 1.)/n,(j * 1.)/n,1);
      positions.push(x[0],x[1],x[2]);
      normals.push(u[0],u[1],u[2]);
      i1 = (i + 1) % n;
@@ -75,7 +75,7 @@
    n = 48;
    positions = [];
    for (i = 0; i <= n; i++) {
-    x = algtop.torus_embedding(2,1,0,(i * 1.)/n,1.01);
+    x = algtop.torus.embedding(0,(i * 1.)/n,1.01);
     y = new BABYLON.Vector3(x[0],x[1],x[2]);
     positions.push(y);
    }
